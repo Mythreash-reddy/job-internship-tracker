@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job & Internship Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Job & Internship Tracker</h1>
+        <p>Keep track of your applications in one place.</p>
+    </header>
+
+    <main>
+
+        <section class="application-form">
+            <h2>Add Application</h2>
+
+            <form id="applicationForm">
+
+                <input
+                    type="text"
+                    id="company"
+                    placeholder="Company"
+                    required
+                >
+
+                <input
+                    type="text"
+                    id="role"
+                    placeholder="Job / Internship Role"
+                    required
+                >
+
+                <select id="status">
+                    <option value="Applied">Applied</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Offer">Offer</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+
+                <input
+                    type="date"
+                    id="deadline"
+                >
+
+                <button type="submit">Add Application</button>
+
+            </form>
+        </section>
+
+        <section class="applications">
+            <h2>My Applications</h2>
+
+            <div id="applicationList">
+                <!-- Applications will appear here -->
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
