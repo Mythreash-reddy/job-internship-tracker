@@ -49,9 +49,38 @@ function displayApplication(application) {
         <p><strong>Deadline:</strong> ${
             application.deadline || "Not specified"
         }</p>
+
+        <button class="delete-button">Delete</button>
     `;
 
+    const deleteButton = card.querySelector(".delete-button");
+
+    deleteButton.addEventListener("click", function () {
+        deleteApplication(application.id);
+    });
+
     applicationList.appendChild(card);
+}
+
+async function deleteApplication(id) {
+    const confirmed = confirm(
+        "Are you sure you want to delete this application?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    const response = await fetch(`/api/applications/${id}`, {
+        method: "DELETE"
+    });
+
+    if (!response.ok) {
+        alert("Failed to delete application.");
+        return;
+    }
+
+    loadApplications();
 }
 
 loadApplications();

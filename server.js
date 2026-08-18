@@ -31,7 +31,23 @@ app.post("/api/applications", (req, res) => {
 
     res.status(201).json(application);
 });
+app.delete("/api/applications/:id", (req, res) => {
+    const { id } = req.params;
 
+    const result = db
+        .prepare("DELETE FROM applications WHERE id = ?")
+        .run(id);
+
+    if (result.changes === 0) {
+        return res.status(404).json({
+            message: "Application not found"
+        });
+    }
+
+    res.json({
+        message: "Application deleted successfully"
+    });
+});
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
