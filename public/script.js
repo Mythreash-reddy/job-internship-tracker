@@ -1,236 +1,426 @@
-const form = document.getElementById("applicationForm");
-const applicationList = document.getElementById("applicationList");
+// ==========================================
+// ELEMENTS
+// ==========================================
 
-const formTitle = document.getElementById("formTitle");
-const submitButton = document.getElementById("submitButton");
-const cancelButton = document.getElementById("cancelButton");
+const form =
+    document.getElementById("applicationForm");
+
+const applicationList =
+    document.getElementById("applicationList");
+
+const formTitle =
+    document.getElementById("formTitle");
+
+const submitButton =
+    document.getElementById("submitButton");
+
+const cancelButton =
+    document.getElementById("cancelButton");
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const filterStatus =
+    document.getElementById("filterStatus");
+
+
+// ==========================================
+// VARIABLES
+// ==========================================
 
 let editingId = null;
 
+let allApplications = [];
 
-// ===============================
-// Load applications
-// ===============================
+
+// ==========================================
+// LOAD APPLICATIONS
+// ==========================================
 
 async function loadApplications() {
 
-    const response = await fetch("/api/applications");
+    try {
 
-    const applications = await response.json();
-
-    applicationList.innerHTML = "";
-
-    applications.forEach(application => {
-        displayApplication(application);
-    });
-}
-
-
-// ===============================
-// Add / Edit application
-// ===============================
-
-form.addEventListener("submit", async function (event) {
-
-    event.preventDefault();
-
-    const application = {
-
-        company: document.getElementById("company").value,
-
-        role: document.getElementById("role").value,
-
-        status: document.getElementById("status").value,
-
-        deadline: document.getElementById("deadline").value
-    };
-
-
-    // EDIT MODE
-
-    if (editingId !== null) {
-
-        const response = await fetch(
-            `/api/applications/${editingId}`,
-            {
-                method: "PUT",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify(application)
-            }
-        );
+        const response =
+            await fetch("/api/applications");
 
 
         if (!response.ok) {
 
-            alert("Failed to update application.");
+            throw new Error(
+                "Failed to load applications"
+            );
+
+        }
+
+
+        allApplications =
+            await response.json();
+
+
+        filterApplications();
+
+    } catch (error) {
+
+        console.error(error);
+
+        applicationList.innerHTML = `
+            <p>
+                Unable to load applications.
+            </p>
+        `;
+
+    }
+
+}
+
+
+// ==========================================
+// ADD / EDIT APPLICATION
+// ==========================================
+
+form.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        const application = {
+
+            company:
+                document.getElementById(
+                    "company"
+                ).value.trim(),
+
+            role:
+                document.getElementById(
+                    "role"
+                ).value.trim(),
+
+            status:
+                document.getElementById(
+                    "status"
+                ).value,
+
+            deadline:
+                document.getElementById(
+                    "deadline"
+                ).value
+
+        };
+
+
+        // ==================================
+        // EDIT MODE
+        // ==================================
+
+        if (editingId !== null) {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/applications/${editingId}`,
+                        {
+                            method: "PUT",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    application
+                                )
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Failed to update application"
+                    );
+
+                }
+
+
+                // Exit edit mode
+
+                editingId = null;
+
+
+                // Reset form
+
+                form.reset();
+
+
+                formTitle.textContent =
+                    "Add Application";
+
+
+                submitButton.textContent =
+                    "Add Application";
+
+
+                cancelButton.style.display =
+                    "none";
+
+
+                // Reload applications
+
+                await loadApplications();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Failed to update application."
+                );
+
+            }
+
 
             return;
+
         }
 
 
-        editingId = null;
+        // ==================================
+        // ADD MODE
+        // ==================================
 
-        form.reset();
+        try {
 
-        formTitle.textContent = "Add Application";
+            const response =
+                await fetch(
+                    "/api/applications",
+                    {
+                        method: "POST",
 
-        submitButton.textContent = "Add Application";
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-        cancelButton.style.display = "none";
+                        body:
+                            JSON.stringify(
+                                application
+                            )
+                    }
+                );
 
-        await loadApplications();
 
-        return;
-    }
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to add application"
+                );
+
+            }
 
 
-    // ADD MODE
+            form.reset();
 
-    const response = await fetch(
-        "/api/applications",
-        {
-            method: "POST",
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+            await loadApplications();
 
-            body: JSON.stringify(application)
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Failed to add application."
+            );
+
         }
-    );
 
-
-    if (!response.ok) {
-
-        alert("Failed to add application.");
-
-        return;
     }
+);
 
 
-    form.reset();
-
-    await loadApplications();
-});
-
-
-// ===============================
-// Display application
-// ===============================
+// ==========================================
+// DISPLAY APPLICATION
+// ==========================================
 
 function displayApplication(application) {
 
-    const card = document.createElement("div");
+    const card =
+        document.createElement("div");
 
-    card.classList.add("application-card");
+
+    card.classList.add(
+        "application-card"
+    );
 
 
     card.innerHTML = `
 
-        <h3>${application.company}</h3>
+        <h3>
+            ${escapeHTML(application.company)}
+        </h3>
+
 
         <p>
             <strong>Role:</strong>
-            ${application.role}
+            ${escapeHTML(application.role)}
         </p>
+
 
         <p>
             <strong>Status:</strong>
-            ${application.status}
+            ${escapeHTML(application.status)}
         </p>
+
 
         <p>
             <strong>Deadline:</strong>
-            ${application.deadline || "Not specified"}
+            ${
+                application.deadline
+                    ? escapeHTML(
+                        application.deadline
+                    )
+                    : "Not specified"
+            }
         </p>
 
-        <button class="edit-button">
-            Edit
-        </button>
 
-        <button class="delete-button">
-            Delete
-        </button>
+        <div class="card-buttons">
+
+            <button
+                class="edit-button"
+            >
+                Edit
+            </button>
+
+
+            <button
+                class="delete-button"
+            >
+                Delete
+            </button>
+
+        </div>
+
     `;
 
 
-    const editButton =
-        card.querySelector(".edit-button");
+    // ==================================
+    // EDIT BUTTON
+    // ==================================
 
-    const deleteButton =
-        card.querySelector(".delete-button");
+    const editButton =
+        card.querySelector(
+            ".edit-button"
+        );
 
 
     editButton.addEventListener(
         "click",
         function () {
 
-            startEditing(application);
+            startEditing(
+                application
+            );
 
         }
     );
+
+
+    // ==================================
+    // DELETE BUTTON
+    // ==================================
+
+    const deleteButton =
+        card.querySelector(
+            ".delete-button"
+        );
 
 
     deleteButton.addEventListener(
         "click",
         function () {
 
-            deleteApplication(application.id);
+            deleteApplication(
+                application.id
+            );
 
         }
     );
 
 
-    applicationList.appendChild(card);
+    applicationList.appendChild(
+        card
+    );
+
 }
 
 
-// ===============================
-// Start editing
-// ===============================
+// ==========================================
+// START EDITING
+// ==========================================
 
 function startEditing(application) {
 
-    editingId = application.id;
+    editingId =
+        application.id;
 
 
-    document.getElementById("company").value =
+    document.getElementById(
+        "company"
+    ).value =
         application.company;
 
-    document.getElementById("role").value =
+
+    document.getElementById(
+        "role"
+    ).value =
         application.role;
 
-    document.getElementById("status").value =
+
+    document.getElementById(
+        "status"
+    ).value =
         application.status;
 
-    document.getElementById("deadline").value =
+
+    document.getElementById(
+        "deadline"
+    ).value =
         application.deadline || "";
 
 
     formTitle.textContent =
         "Edit Application";
 
+
     submitButton.textContent =
         "Save Changes";
+
 
     cancelButton.style.display =
         "block";
 
 
     window.scrollTo({
+
         top: 0,
+
         behavior: "smooth"
+
     });
+
 }
 
 
-// ===============================
-// Cancel editing
-// ===============================
+// ==========================================
+// CANCEL EDIT
+// ==========================================
 
 cancelButton.addEventListener(
     "click",
@@ -238,59 +428,218 @@ cancelButton.addEventListener(
 
         editingId = null;
 
+
         form.reset();
+
 
         formTitle.textContent =
             "Add Application";
 
+
         submitButton.textContent =
             "Add Application";
 
+
         cancelButton.style.display =
             "none";
+
     }
 );
 
 
-// ===============================
-// Delete application
-// ===============================
+// ==========================================
+// DELETE APPLICATION
+// ==========================================
 
 async function deleteApplication(id) {
 
-    const confirmed = confirm(
-        "Are you sure you want to delete this application?"
-    );
+    const confirmed =
+        confirm(
+            "Are you sure you want to delete this application?"
+        );
 
 
     if (!confirmed) {
 
         return;
+
     }
 
 
-    const response = await fetch(
-        `/api/applications/${id}`,
-        {
-            method: "DELETE"
+    try {
+
+        const response =
+            await fetch(
+                `/api/applications/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Failed to delete application"
+            );
+
         }
-    );
 
 
-    if (!response.ok) {
+        await loadApplications();
 
-        alert("Failed to delete application.");
 
-        return;
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Failed to delete application."
+        );
+
     }
 
-
-    await loadApplications();
 }
 
 
-// ===============================
-// Start application
-// ===============================
+// ==========================================
+// SEARCH + FILTER
+// ==========================================
+
+function filterApplications() {
+
+    const searchText =
+        searchInput.value
+            .toLowerCase()
+            .trim();
+
+
+    const selectedStatus =
+        filterStatus.value;
+
+
+    const filteredApplications =
+        allApplications.filter(
+            function (application) {
+
+                // Search company
+
+                const companyMatch =
+                    application.company
+                        .toLowerCase()
+                        .includes(searchText);
+
+
+                // Search role
+
+                const roleMatch =
+                    application.role
+                        .toLowerCase()
+                        .includes(searchText);
+
+
+                // Search match
+
+                const matchesSearch =
+                    companyMatch ||
+                    roleMatch;
+
+
+                // Status match
+
+                const matchesStatus =
+                    selectedStatus === "All" ||
+                    application.status ===
+                        selectedStatus;
+
+
+                return (
+                    matchesSearch &&
+                    matchesStatus
+                );
+
+            }
+        );
+
+
+    applicationList.innerHTML = "";
+
+
+    if (
+        filteredApplications.length === 0
+    ) {
+
+        applicationList.innerHTML = `
+            <p class="no-results">
+                No applications found.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    filteredApplications.forEach(
+        function (application) {
+
+            displayApplication(
+                application
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// SEARCH EVENT
+// ==========================================
+
+searchInput.addEventListener(
+    "input",
+    function () {
+
+        filterApplications();
+
+    }
+);
+
+
+// ==========================================
+// FILTER EVENT
+// ==========================================
+
+filterStatus.addEventListener(
+    "change",
+    function () {
+
+        filterApplications();
+
+    }
+);
+
+
+// ==========================================
+// SECURITY HELPER
+// ==========================================
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        value ?? "";
+
+    return div.innerHTML;
+
+}
+
+
+// ==========================================
+// START APPLICATION
+// ==========================================
 
 loadApplications();

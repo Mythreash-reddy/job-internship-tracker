@@ -1,60 +1,357 @@
+/* ==========================================
+   GENERAL
+========================================== */
+
 * {
     box-sizing: border-box;
 }
 
+
 body {
+
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    background:
+        #f4f6f8;
+
+    color:
+        #222;
+
 }
+
+
+/* ==========================================
+   HEADER
+========================================== */
 
 header {
-    background: #222;
-    color: white;
-    text-align: center;
-    padding: 30px;
+
+    background:
+        #222;
+
+    color:
+        white;
+
+    text-align:
+        center;
+
+    padding:
+        30px;
+
 }
+
+
+header h1 {
+
+    margin:
+        0 0 10px;
+
+}
+
+
+header p {
+
+    margin:
+        0;
+
+}
+
+
+/* ==========================================
+   MAIN
+========================================== */
 
 main {
-    max-width: 900px;
-    margin: 30px auto;
-    padding: 0 20px;
+
+    max-width:
+        900px;
+
+    margin:
+        30px auto;
+
+    padding:
+        0 20px;
+
 }
+
+
+/* ==========================================
+   SECTIONS
+========================================== */
 
 section {
-    background: white;
-    padding: 25px;
-    margin-bottom: 25px;
-    border-radius: 10px;
+
+    background:
+        white;
+
+    padding:
+        25px;
+
+    margin-bottom:
+        25px;
+
+    border-radius:
+        10px;
+
 }
 
+
+/* ==========================================
+   FORM
+========================================== */
+
 form {
-    display: grid;
-    gap: 12px;
+
+    display:
+        grid;
+
+    gap:
+        12px;
+
 }
+
 
 input,
 select,
 button {
-    padding: 12px;
-    font-size: 16px;
+
+    padding:
+        12px;
+
+    font-size:
+        16px;
+
 }
+
+
+input,
+select {
+
+    border:
+        1px solid #ccc;
+
+    border-radius:
+        5px;
+
+}
+
 
 button {
-    cursor: pointer;
-    background: #222;
-    color: white;
-    border: none;
-    border-radius: 5px;
+
+    cursor:
+        pointer;
+
+    border:
+        none;
+
+    border-radius:
+        5px;
+
 }
 
-button:hover {
-    opacity: 0.85;
+
+/* ==========================================
+   MAIN BUTTON
+========================================== */
+
+#submitButton {
+
+    background:
+        #222;
+
+    color:
+        white;
+
 }
+
+
+#submitButton:hover {
+
+    opacity:
+        0.85;
+
+}
+
+
+/* ==========================================
+   CANCEL BUTTON
+========================================== */
+
+#cancelButton {
+
+    background:
+        #ddd;
+
+    color:
+        #222;
+
+}
+
+
+/* ==========================================
+   SEARCH + FILTER
+========================================== */
+
+.filters {
+
+    display:
+        flex;
+
+    gap:
+        10px;
+
+    margin-bottom:
+        20px;
+
+}
+
+
+.filters input {
+
+    flex:
+        2;
+
+}
+
+
+.filters select {
+
+    flex:
+        1;
+
+}
+
+
+/* ==========================================
+   APPLICATION CARD
+========================================== */
 
 .application-card {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-top: 15px;
-    border-radius: 8px;
+
+    border:
+        1px solid #ddd;
+
+    padding:
+        20px;
+
+    margin-top:
+        15px;
+
+    border-radius:
+        8px;
+
+    background:
+        #fafafa;
+
+}
+
+
+.application-card h3 {
+
+    margin-top:
+        0;
+
+}
+
+
+.application-card p {
+
+    margin:
+        8px 0;
+
+}
+
+
+/* ==========================================
+   CARD BUTTONS
+========================================== */
+
+.card-buttons {
+
+    display:
+        flex;
+
+    gap:
+        10px;
+
+    margin-top:
+        15px;
+
+}
+
+
+.edit-button {
+
+    background:
+        #ddd;
+
+    color:
+        #222;
+
+}
+
+
+.delete-button {
+
+    background:
+        #222;
+
+    color:
+        white;
+
+}
+
+
+.edit-button:hover,
+.delete-button:hover {
+
+    opacity:
+        0.8;
+
+}
+
+
+/* ==========================================
+   NO RESULTS
+========================================== */
+
+.no-results {
+
+    text-align:
+        center;
+
+    padding:
+        20px;
+
+    color:
+        #666;
+
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 600px) {
+
+    .filters {
+
+        flex-direction:
+            column;
+
+    }
+
+
+    .card-buttons {
+
+        flex-direction:
+            column;
+
+    }
+
 }

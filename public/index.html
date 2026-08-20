@@ -2,27 +2,44 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Job & Internship Tracker</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
     <header>
-        <h1>Job & Internship Tracker</h1>
+
+        <h1>
+            Job & Internship Tracker
+        </h1>
 
         <p>
             Keep track of your applications in one place.
         </p>
+
     </header>
 
 
     <main>
+
+        <!-- =========================
+             ADD / EDIT APPLICATION
+        ========================== -->
 
         <section class="application-form">
 
@@ -97,6 +114,10 @@
         </section>
 
 
+        <!-- =========================
+             APPLICATIONS
+        ========================== -->
+
         <section class="applications">
 
             <h2>
@@ -104,9 +125,49 @@
             </h2>
 
 
+            <!-- SEARCH + FILTER -->
+
+            <div class="filters">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search by company or role..."
+                >
+
+
+                <select id="filterStatus">
+
+                    <option value="All">
+                        All Statuses
+                    </option>
+
+                    <option value="Applied">
+                        Applied
+                    </option>
+
+                    <option value="Interview">
+                        Interview
+                    </option>
+
+                    <option value="Offer">
+                        Offer
+                    </option>
+
+                    <option value="Rejected">
+                        Rejected
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- APPLICATION LIST -->
+
             <div id="applicationList">
 
-                <!-- Applications will appear here -->
+                <!-- Applications appear here -->
 
             </div>
 
