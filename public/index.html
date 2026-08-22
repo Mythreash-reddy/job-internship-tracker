@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -12,119 +11,84 @@
 
     <title>Job & Internship Tracker</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
     <header>
-
-        <h1>
-            Job & Internship Tracker
-        </h1>
+        <h1>Job & Internship Tracker</h1>
 
         <p>
             Keep track of your applications in one place.
         </p>
-
     </header>
 
 
     <main>
 
-
-        <!-- =================================
+        <!-- ================================
              DASHBOARD
-        ================================== -->
+        ================================= -->
 
         <section class="dashboard">
 
-            <h2>
-                Application Dashboard
-            </h2>
-
+            <h2>Application Dashboard</h2>
 
             <div class="stats">
 
-
                 <div class="stat-card">
-
-                    <h3>
-                        Total
-                    </h3>
-
-                    <p id="totalCount">
-                        0
-                    </p>
-
+                    <h3>Total</h3>
+                    <p id="totalCount">0</p>
                 </div>
 
-
                 <div class="stat-card">
-
-                    <h3>
-                        Applied
-                    </h3>
-
-                    <p id="appliedCount">
-                        0
-                    </p>
-
+                    <h3>Applied</h3>
+                    <p id="appliedCount">0</p>
                 </div>
 
-
                 <div class="stat-card">
-
-                    <h3>
-                        Interview
-                    </h3>
-
-                    <p id="interviewCount">
-                        0
-                    </p>
-
+                    <h3>Interview</h3>
+                    <p id="interviewCount">0</p>
                 </div>
 
-
                 <div class="stat-card">
-
-                    <h3>
-                        Offer
-                    </h3>
-
-                    <p id="offerCount">
-                        0
-                    </p>
-
+                    <h3>Offer</h3>
+                    <p id="offerCount">0</p>
                 </div>
 
-
                 <div class="stat-card">
-
-                    <h3>
-                        Rejected
-                    </h3>
-
-                    <p id="rejectedCount">
-                        0
-                    </p>
-
+                    <h3>Rejected</h3>
+                    <p id="rejectedCount">0</p>
                 </div>
-
 
             </div>
 
         </section>
 
 
-        <!-- =================================
+        <!-- ================================
+             UPCOMING DEADLINES
+        ================================= -->
+
+        <section class="deadlines">
+
+            <h2>Upcoming Deadlines</h2>
+
+            <div id="deadlineList">
+
+                <p class="no-results">
+                    No upcoming deadlines.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
              ADD / EDIT APPLICATION
-        ================================== -->
+        ================================= -->
 
         <section class="application-form">
 
@@ -132,9 +96,7 @@
                 Add Application
             </h2>
 
-
             <form id="applicationForm">
-
 
                 <input
                     type="text"
@@ -143,14 +105,12 @@
                     required
                 >
 
-
                 <input
                     type="text"
                     id="role"
                     placeholder="Job / Internship Role"
                     required
                 >
-
 
                 <select id="status">
 
@@ -172,12 +132,10 @@
 
                 </select>
 
-
                 <input
                     type="date"
                     id="deadline"
                 >
-
 
                 <button
                     type="submit"
@@ -185,7 +143,6 @@
                 >
                     Add Application
                 </button>
-
 
                 <button
                     type="button"
@@ -195,34 +152,26 @@
                     Cancel Edit
                 </button>
 
-
             </form>
 
         </section>
 
 
-        <!-- =================================
+        <!-- ================================
              APPLICATIONS
-        ================================== -->
+        ================================= -->
 
         <section class="applications">
 
-            <h2>
-                My Applications
-            </h2>
-
-
-            <!-- SEARCH + FILTER -->
+            <h2>My Applications</h2>
 
             <div class="filters">
-
 
                 <input
                     type="text"
                     id="searchInput"
                     placeholder="Search by company or role..."
                 >
-
 
                 <select id="filterStatus">
 
@@ -248,11 +197,8 @@
 
                 </select>
 
-
             </div>
 
-
-            <!-- APPLICATION LIST -->
 
             <div id="applicationList">
 
@@ -260,9 +206,7 @@
 
             </div>
 
-
         </section>
-
 
     </main>
 

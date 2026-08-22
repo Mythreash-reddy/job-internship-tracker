@@ -175,6 +175,121 @@ section {
 
 
 /* ==========================================
+   UPCOMING DEADLINES
+========================================== */
+
+.deadlines h2 {
+
+    margin-top:
+        0;
+
+}
+
+
+.deadline-card {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    padding:
+        15px;
+
+    margin-top:
+        10px;
+
+    border:
+        1px solid #ddd;
+
+    border-radius:
+        8px;
+
+}
+
+
+.deadline-card h3 {
+
+    margin:
+        0 0 5px;
+
+}
+
+
+.deadline-card p {
+
+    margin:
+        0;
+
+    color:
+        #666;
+
+}
+
+
+.deadline-info {
+
+    text-align:
+        right;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        5px;
+
+}
+
+
+/* Due today */
+
+.deadline-today {
+
+    border-left:
+        5px solid #222;
+
+}
+
+
+/* Due within 3 days */
+
+.deadline-soon {
+
+    border-left:
+        5px solid #555;
+
+}
+
+
+/* More than 3 days */
+
+.deadline-normal {
+
+    border-left:
+        5px solid #aaa;
+
+}
+
+
+.deadline-info span {
+
+    font-size:
+        14px;
+
+    color:
+        #666;
+
+}
+
+
+/* ==========================================
    FORM
 ========================================== */
 
@@ -425,6 +540,28 @@ button {
 
         flex-direction:
             column;
+
+    }
+
+
+    .deadline-card {
+
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+
+        gap:
+            10px;
+
+    }
+
+
+    .deadline-info {
+
+        text-align:
+            left;
 
     }
 

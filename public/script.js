@@ -24,7 +24,7 @@ const filterStatus =
     document.getElementById("filterStatus");
 
 
-// Dashboard elements
+// Dashboard
 
 const totalCount =
     document.getElementById("totalCount");
@@ -40,6 +40,12 @@ const offerCount =
 
 const rejectedCount =
     document.getElementById("rejectedCount");
+
+
+// Deadline section
+
+const deadlineList =
+    document.getElementById("deadlineList");
 
 
 // ==========================================
@@ -76,12 +82,9 @@ async function loadApplications() {
             await response.json();
 
 
-        // Update dashboard
-
         updateDashboard();
 
-
-        // Update application list
+        updateUpcomingDeadlines();
 
         filterApplications();
 
@@ -102,7 +105,7 @@ async function loadApplications() {
 
 
 // ==========================================
-// UPDATE DASHBOARD
+// DASHBOARD
 // ==========================================
 
 function updateDashboard() {
@@ -142,21 +145,219 @@ function updateDashboard() {
     totalCount.textContent =
         total;
 
-
     appliedCount.textContent =
         applied;
-
 
     interviewCount.textContent =
         interview;
 
-
     offerCount.textContent =
         offer;
 
-
     rejectedCount.textContent =
         rejected;
+
+}
+
+
+// ==========================================
+// UPCOMING DEADLINES
+// ==========================================
+
+function updateUpcomingDeadlines() {
+
+    const today =
+        new Date();
+
+    today.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+
+    const upcomingApplications =
+        allApplications
+            .filter(application => {
+
+                if (!application.deadline) {
+                    return false;
+                }
+
+
+                const deadline =
+                    new Date(
+                        application.deadline +
+                        "T00:00:00"
+                    );
+
+
+                return deadline >= today;
+
+            })
+            .sort(
+                (a, b) => {
+
+                    const dateA =
+                        new Date(
+                            a.deadline +
+                            "T00:00:00"
+                        );
+
+                    const dateB =
+                        new Date(
+                            b.deadline +
+                            "T00:00:00"
+                        );
+
+                    return dateA - dateB;
+
+                }
+            );
+
+
+    deadlineList.innerHTML = "";
+
+
+    if (
+        upcomingApplications.length === 0
+    ) {
+
+        deadlineList.innerHTML = `
+            <p class="no-results">
+                No upcoming deadlines.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    // Show maximum 5 upcoming deadlines
+
+    upcomingApplications
+        .slice(0, 5)
+        .forEach(application => {
+
+            const card =
+                document.createElement("div");
+
+
+            card.classList.add(
+                "deadline-card"
+            );
+
+
+            const deadlineDate =
+                new Date(
+                    application.deadline +
+                    "T00:00:00"
+                );
+
+
+            const formattedDate =
+                deadlineDate.toLocaleDateString(
+                    "en-US",
+                    {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric"
+                    }
+                );
+
+
+            const difference =
+                Math.ceil(
+                    (
+                        deadlineDate - today
+                    ) /
+                    (
+                        1000 *
+                        60 *
+                        60 *
+                        24
+                    )
+                );
+
+
+            let urgencyText;
+
+
+            if (difference === 0) {
+
+                urgencyText =
+                    "Due today";
+
+                card.classList.add(
+                    "deadline-today"
+                );
+
+            } else if (difference <= 3) {
+
+                urgencyText =
+                    `${difference} day${
+                        difference === 1
+                            ? ""
+                            : "s"
+                    } left`;
+
+                card.classList.add(
+                    "deadline-soon"
+                );
+
+            } else {
+
+                urgencyText =
+                    `${difference} days left`;
+
+                card.classList.add(
+                    "deadline-normal"
+                );
+
+            }
+
+
+            card.innerHTML = `
+
+                <div>
+
+                    <h3>
+                        ${escapeHTML(
+                            application.company
+                        )}
+                    </h3>
+
+                    <p>
+                        ${escapeHTML(
+                            application.role
+                        )}
+                    </p>
+
+                </div>
+
+
+                <div class="deadline-info">
+
+                    <strong>
+                        ${formattedDate}
+                    </strong>
+
+                    <span>
+                        ${urgencyText}
+                    </span>
+
+                </div>
+
+            `;
+
+
+            deadlineList.appendChild(
+                card
+            );
+
+        });
 
 }
 
@@ -198,7 +399,7 @@ form.addEventListener(
 
 
         // ==================================
-        // EDIT MODE
+        // EDIT
         // ==================================
 
         if (editingId !== null) {
@@ -235,17 +436,13 @@ form.addEventListener(
 
                 editingId = null;
 
-
                 form.reset();
-
 
                 formTitle.textContent =
                     "Add Application";
 
-
                 submitButton.textContent =
                     "Add Application";
-
 
                 cancelButton.style.display =
                     "none";
@@ -271,7 +468,7 @@ form.addEventListener(
 
 
         // ==================================
-        // ADD MODE
+        // ADD
         // ==================================
 
         try {
@@ -305,7 +502,6 @@ form.addEventListener(
 
 
             form.reset();
-
 
             await loadApplications();
 
@@ -342,21 +538,24 @@ function displayApplication(application) {
     card.innerHTML = `
 
         <h3>
-            ${escapeHTML(application.company)}
+            ${escapeHTML(
+                application.company
+            )}
         </h3>
-
 
         <p>
             <strong>Role:</strong>
-            ${escapeHTML(application.role)}
+            ${escapeHTML(
+                application.role
+            )}
         </p>
-
 
         <p>
             <strong>Status:</strong>
-            ${escapeHTML(application.status)}
+            ${escapeHTML(
+                application.status
+            )}
         </p>
-
 
         <p>
             <strong>Deadline:</strong>
@@ -369,19 +568,13 @@ function displayApplication(application) {
             }
         </p>
 
-
         <div class="card-buttons">
 
-            <button
-                class="edit-button"
-            >
+            <button class="edit-button">
                 Edit
             </button>
 
-
-            <button
-                class="delete-button"
-            >
+            <button class="delete-button">
                 Delete
             </button>
 
@@ -389,10 +582,6 @@ function displayApplication(application) {
 
     `;
 
-
-    // ==================================
-    // EDIT BUTTON
-    // ==================================
 
     const editButton =
         card.querySelector(
@@ -411,10 +600,6 @@ function displayApplication(application) {
         }
     );
 
-
-    // ==================================
-    // DELETE BUTTON
-    // ==================================
 
     const deleteButton =
         card.querySelector(
@@ -442,7 +627,7 @@ function displayApplication(application) {
 
 
 // ==========================================
-// START EDITING
+// EDIT APPLICATION
 // ==========================================
 
 function startEditing(application) {
@@ -508,17 +693,13 @@ cancelButton.addEventListener(
 
         editingId = null;
 
-
         form.reset();
-
 
         formTitle.textContent =
             "Add Application";
 
-
         submitButton.textContent =
             "Add Application";
-
 
         cancelButton.style.display =
             "none";
@@ -528,7 +709,7 @@ cancelButton.addEventListener(
 
 
 // ==========================================
-// DELETE APPLICATION
+// DELETE
 // ==========================================
 
 async function deleteApplication(id) {
@@ -666,30 +847,18 @@ function filterApplications() {
 
 
 // ==========================================
-// SEARCH EVENT
+// SEARCH EVENTS
 // ==========================================
 
 searchInput.addEventListener(
     "input",
-    function () {
-
-        filterApplications();
-
-    }
+    filterApplications
 );
 
 
-// ==========================================
-// FILTER EVENT
-// ==========================================
-
 filterStatus.addEventListener(
     "change",
-    function () {
-
-        filterApplications();
-
-    }
+    filterApplications
 );
 
 
@@ -711,7 +880,7 @@ function escapeHTML(value) {
 
 
 // ==========================================
-// START APPLICATION
+// START
 // ==========================================
 
 loadApplications();
