@@ -24,6 +24,24 @@ const filterStatus =
     document.getElementById("filterStatus");
 
 
+// Dashboard elements
+
+const totalCount =
+    document.getElementById("totalCount");
+
+const appliedCount =
+    document.getElementById("appliedCount");
+
+const interviewCount =
+    document.getElementById("interviewCount");
+
+const offerCount =
+    document.getElementById("offerCount");
+
+const rejectedCount =
+    document.getElementById("rejectedCount");
+
+
 // ==========================================
 // VARIABLES
 // ==========================================
@@ -58,7 +76,15 @@ async function loadApplications() {
             await response.json();
 
 
+        // Update dashboard
+
+        updateDashboard();
+
+
+        // Update application list
+
         filterApplications();
+
 
     } catch (error) {
 
@@ -71,6 +97,66 @@ async function loadApplications() {
         `;
 
     }
+
+}
+
+
+// ==========================================
+// UPDATE DASHBOARD
+// ==========================================
+
+function updateDashboard() {
+
+    const total =
+        allApplications.length;
+
+
+    const applied =
+        allApplications.filter(
+            application =>
+                application.status === "Applied"
+        ).length;
+
+
+    const interview =
+        allApplications.filter(
+            application =>
+                application.status === "Interview"
+        ).length;
+
+
+    const offer =
+        allApplications.filter(
+            application =>
+                application.status === "Offer"
+        ).length;
+
+
+    const rejected =
+        allApplications.filter(
+            application =>
+                application.status === "Rejected"
+        ).length;
+
+
+    totalCount.textContent =
+        total;
+
+
+    appliedCount.textContent =
+        applied;
+
+
+    interviewCount.textContent =
+        interview;
+
+
+    offerCount.textContent =
+        offer;
+
+
+    rejectedCount.textContent =
+        rejected;
 
 }
 
@@ -147,12 +233,8 @@ form.addEventListener(
                 }
 
 
-                // Exit edit mode
-
                 editingId = null;
 
-
-                // Reset form
 
                 form.reset();
 
@@ -168,8 +250,6 @@ form.addEventListener(
                 cancelButton.style.display =
                     "none";
 
-
-                // Reload applications
 
                 await loadApplications();
 
@@ -522,15 +602,11 @@ function filterApplications() {
         allApplications.filter(
             function (application) {
 
-                // Search company
-
                 const companyMatch =
                     application.company
                         .toLowerCase()
                         .includes(searchText);
 
-
-                // Search role
 
                 const roleMatch =
                     application.role
@@ -538,14 +614,10 @@ function filterApplications() {
                         .includes(searchText);
 
 
-                // Search match
-
                 const matchesSearch =
                     companyMatch ||
                     roleMatch;
 
-
-                // Status match
 
                 const matchesStatus =
                     selectedStatus === "All" ||
