@@ -4,7 +4,9 @@
 
 * {
     box-sizing: border-box;
+
     margin: 0;
+
     padding: 0;
 }
 
@@ -301,6 +303,253 @@ section {
 
 
 /* ==========================================
+   ANALYTICS
+========================================== */
+
+.analytics-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1.5fr 1fr;
+
+    gap:
+        20px;
+
+}
+
+
+.analytics-card {
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius:
+        12px;
+
+    padding:
+        20px;
+
+    background:
+        #fafafa;
+
+}
+
+
+.analytics-card h3 {
+
+    font-size:
+        17px;
+
+    margin-bottom:
+        20px;
+
+    color:
+        #111827;
+
+}
+
+
+/* ==========================================
+   ANALYTICS CHART
+========================================== */
+
+.chart-container {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        18px;
+
+}
+
+
+.chart-row {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        80px 1fr 45px;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+}
+
+
+.chart-label {
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+
+    color:
+        #374151;
+
+}
+
+
+.bar-background {
+
+    height:
+        12px;
+
+    background:
+        #e5e7eb;
+
+    border-radius:
+        10px;
+
+    overflow:
+        hidden;
+
+}
+
+
+.bar {
+
+    height:
+        100%;
+
+    width:
+        0%;
+
+    border-radius:
+        10px;
+
+    transition:
+        width 0.5s ease;
+
+}
+
+
+.applied-bar {
+
+    background:
+        #6366f1;
+
+}
+
+
+.interview-bar {
+
+    background:
+        #f59e0b;
+
+}
+
+
+.offer-bar {
+
+    background:
+        #10b981;
+
+}
+
+
+.rejected-bar {
+
+    background:
+        #ef4444;
+
+}
+
+
+.chart-row span {
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+
+    text-align:
+        right;
+
+    color:
+        #374151;
+
+}
+
+
+/* ==========================================
+   APPLICATION RATES
+========================================== */
+
+.rate-list {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        12px;
+
+}
+
+
+.rate-item {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    padding:
+        15px;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius:
+        8px;
+
+    background:
+        white;
+
+}
+
+
+.rate-item span {
+
+    color:
+        #6b7280;
+
+    font-size:
+        14px;
+
+}
+
+
+.rate-item strong {
+
+    font-size:
+        20px;
+
+    color:
+        #111827;
+
+}
+
+
+/* ==========================================
    DEADLINES
 ========================================== */
 
@@ -404,8 +653,6 @@ section {
 
 }
 
-
-/* Deadline urgency */
 
 .deadline-today {
 
@@ -889,6 +1136,18 @@ footer {
    MOBILE
 ========================================== */
 
+@media (max-width: 700px) {
+
+    .analytics-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+
 @media (max-width: 650px) {
 
     .top-header {
@@ -994,12 +1253,23 @@ footer {
    SMALL MOBILE
 ========================================== */
 
-@media (max-width: 400px) {
+@media (max-width: 450px) {
 
     .stats {
 
         grid-template-columns:
             1fr;
+
+    }
+
+
+    .chart-row {
+
+        grid-template-columns:
+            70px 1fr 40px;
+
+        gap:
+            6px;
 
     }
 

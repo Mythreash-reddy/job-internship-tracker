@@ -48,6 +48,56 @@ const deadlineList =
     document.getElementById("deadlineList");
 
 
+// Analytics
+
+const appliedBar =
+    document.getElementById("appliedBar");
+
+const interviewBar =
+    document.getElementById("interviewBar");
+
+const offerBar =
+    document.getElementById("offerBar");
+
+const rejectedBar =
+    document.getElementById("rejectedBar");
+
+const appliedPercentage =
+    document.getElementById(
+        "appliedPercentage"
+    );
+
+const interviewPercentage =
+    document.getElementById(
+        "interviewPercentage"
+    );
+
+const offerPercentage =
+    document.getElementById(
+        "offerPercentage"
+    );
+
+const rejectedPercentage =
+    document.getElementById(
+        "rejectedPercentage"
+    );
+
+const interviewRate =
+    document.getElementById(
+        "interviewRate"
+    );
+
+const offerRate =
+    document.getElementById(
+        "offerRate"
+    );
+
+const rejectionRate =
+    document.getElementById(
+        "rejectionRate"
+    );
+
+
 // ==========================================
 // VARIABLES
 // ==========================================
@@ -84,6 +134,8 @@ async function loadApplications() {
 
         updateDashboard();
 
+        updateAnalytics();
+
         updateUpcomingDeadlines();
 
         filterApplications();
@@ -94,7 +146,7 @@ async function loadApplications() {
         console.error(error);
 
         applicationList.innerHTML = `
-            <p>
+            <p class="no-results">
                 Unable to load applications.
             </p>
         `;
@@ -161,6 +213,162 @@ function updateDashboard() {
 
 
 // ==========================================
+// ANALYTICS
+// ==========================================
+
+function updateAnalytics() {
+
+    const total =
+        allApplications.length;
+
+
+    const applied =
+        allApplications.filter(
+            application =>
+                application.status === "Applied"
+        ).length;
+
+
+    const interview =
+        allApplications.filter(
+            application =>
+                application.status === "Interview"
+        ).length;
+
+
+    const offer =
+        allApplications.filter(
+            application =>
+                application.status === "Offer"
+        ).length;
+
+
+    const rejected =
+        allApplications.filter(
+            application =>
+                application.status === "Rejected"
+        ).length;
+
+
+    // ======================================
+    // CALCULATE PERCENTAGES
+    // ======================================
+
+    const appliedPercent =
+        total === 0
+            ? 0
+            : Math.round(
+                (applied / total) * 100
+            );
+
+
+    const interviewPercent =
+        total === 0
+            ? 0
+            : Math.round(
+                (interview / total) * 100
+            );
+
+
+    const offerPercent =
+        total === 0
+            ? 0
+            : Math.round(
+                (offer / total) * 100
+            );
+
+
+    const rejectedPercent =
+        total === 0
+            ? 0
+            : Math.round(
+                (rejected / total) * 100
+            );
+
+
+    // ======================================
+    // UPDATE BARS
+    // ======================================
+
+    appliedBar.style.width =
+        `${appliedPercent}%`;
+
+
+    interviewBar.style.width =
+        `${interviewPercent}%`;
+
+
+    offerBar.style.width =
+        `${offerPercent}%`;
+
+
+    rejectedBar.style.width =
+        `${rejectedPercent}%`;
+
+
+    // ======================================
+    // UPDATE PERCENTAGE LABELS
+    // ======================================
+
+    appliedPercentage.textContent =
+        `${appliedPercent}%`;
+
+
+    interviewPercentage.textContent =
+        `${interviewPercent}%`;
+
+
+    offerPercentage.textContent =
+        `${offerPercent}%`;
+
+
+    rejectedPercentage.textContent =
+        `${rejectedPercent}%`;
+
+
+    // ======================================
+    // APPLICATION RATES
+    // ======================================
+
+    const interviewRateValue =
+        total === 0
+            ? 0
+            : Math.round(
+                (interview / total) * 100
+            );
+
+
+    const offerRateValue =
+        total === 0
+            ? 0
+            : Math.round(
+                (offer / total) * 100
+            );
+
+
+    const rejectionRateValue =
+        total === 0
+            ? 0
+            : Math.round(
+                (rejected / total) * 100
+            );
+
+
+    interviewRate.textContent =
+        `${interviewRateValue}%`;
+
+
+    offerRate.textContent =
+        `${offerRateValue}%`;
+
+
+    rejectionRate.textContent =
+        `${rejectionRateValue}%`;
+
+}
+
+
+// ==========================================
 // UPCOMING DEADLINES
 // ==========================================
 
@@ -182,7 +390,9 @@ function updateUpcomingDeadlines() {
             .filter(application => {
 
                 if (!application.deadline) {
+
                     return false;
+
                 }
 
 
@@ -205,11 +415,13 @@ function updateUpcomingDeadlines() {
                             "T00:00:00"
                         );
 
+
                     const dateB =
                         new Date(
                             b.deadline +
                             "T00:00:00"
                         );
+
 
                     return dateA - dateB;
 
@@ -234,8 +446,6 @@ function updateUpcomingDeadlines() {
 
     }
 
-
-    // Show maximum 5 upcoming deadlines
 
     upcomingApplications
         .slice(0, 5)
@@ -570,11 +780,17 @@ function displayApplication(application) {
 
         <div class="card-buttons">
 
-            <button class="edit-button">
+            <button
+                class="edit-button"
+                type="button"
+            >
                 Edit
             </button>
 
-            <button class="delete-button">
+            <button
+                class="delete-button"
+                type="button"
+            >
                 Delete
             </button>
 
@@ -709,7 +925,7 @@ cancelButton.addEventListener(
 
 
 // ==========================================
-// DELETE
+// DELETE APPLICATION
 // ==========================================
 
 async function deleteApplication(id) {
@@ -880,7 +1096,7 @@ function escapeHTML(value) {
 
 
 // ==========================================
-// START
+// START APPLICATION
 // ==========================================
 
 loadApplications();
