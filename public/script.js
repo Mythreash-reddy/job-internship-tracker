@@ -63,39 +63,25 @@ const rejectedBar =
     document.getElementById("rejectedBar");
 
 const appliedPercentage =
-    document.getElementById(
-        "appliedPercentage"
-    );
+    document.getElementById("appliedPercentage");
 
 const interviewPercentage =
-    document.getElementById(
-        "interviewPercentage"
-    );
+    document.getElementById("interviewPercentage");
 
 const offerPercentage =
-    document.getElementById(
-        "offerPercentage"
-    );
+    document.getElementById("offerPercentage");
 
 const rejectedPercentage =
-    document.getElementById(
-        "rejectedPercentage"
-    );
+    document.getElementById("rejectedPercentage");
 
 const interviewRate =
-    document.getElementById(
-        "interviewRate"
-    );
+    document.getElementById("interviewRate");
 
 const offerRate =
-    document.getElementById(
-        "offerRate"
-    );
+    document.getElementById("offerRate");
 
 const rejectionRate =
-    document.getElementById(
-        "rejectionRate"
-    );
+    document.getElementById("rejectionRate");
 
 
 // ==========================================
@@ -250,10 +236,6 @@ function updateAnalytics() {
         ).length;
 
 
-    // ======================================
-    // CALCULATE PERCENTAGES
-    // ======================================
-
     const appliedPercent =
         total === 0
             ? 0
@@ -286,49 +268,31 @@ function updateAnalytics() {
             );
 
 
-    // ======================================
-    // UPDATE BARS
-    // ======================================
-
     appliedBar.style.width =
         `${appliedPercent}%`;
-
 
     interviewBar.style.width =
         `${interviewPercent}%`;
 
-
     offerBar.style.width =
         `${offerPercent}%`;
-
 
     rejectedBar.style.width =
         `${rejectedPercent}%`;
 
 
-    // ======================================
-    // UPDATE PERCENTAGE LABELS
-    // ======================================
-
     appliedPercentage.textContent =
         `${appliedPercent}%`;
-
 
     interviewPercentage.textContent =
         `${interviewPercent}%`;
 
-
     offerPercentage.textContent =
         `${offerPercent}%`;
-
 
     rejectedPercentage.textContent =
         `${rejectedPercent}%`;
 
-
-    // ======================================
-    // APPLICATION RATES
-    // ======================================
 
     const interviewRateValue =
         total === 0
@@ -357,10 +321,8 @@ function updateAnalytics() {
     interviewRate.textContent =
         `${interviewRateValue}%`;
 
-
     offerRate.textContent =
         `${offerRateValue}%`;
-
 
     rejectionRate.textContent =
         `${rejectionRateValue}%`;
@@ -603,7 +565,12 @@ form.addEventListener(
             deadline:
                 document.getElementById(
                     "deadline"
-                ).value
+                ).value,
+
+            notes:
+                document.getElementById(
+                    "notes"
+                ).value.trim()
 
         };
 
@@ -778,6 +745,27 @@ function displayApplication(application) {
             }
         </p>
 
+        ${
+            application.notes
+                ? `
+                    <div class="application-notes">
+
+                        <strong>
+                            📝 Notes
+                        </strong>
+
+                        <p>
+                            ${escapeHTML(
+                                application.notes
+                            )}
+                        </p>
+
+                    </div>
+                `
+                : ""
+        }
+
+
         <div class="card-buttons">
 
             <button
@@ -843,7 +831,7 @@ function displayApplication(application) {
 
 
 // ==========================================
-// EDIT APPLICATION
+// START EDITING
 // ==========================================
 
 function startEditing(application) {
@@ -874,6 +862,12 @@ function startEditing(application) {
         "deadline"
     ).value =
         application.deadline || "";
+
+
+    document.getElementById(
+        "notes"
+    ).value =
+        application.notes || "";
 
 
     formTitle.textContent =
@@ -999,21 +993,37 @@ function filterApplications() {
         allApplications.filter(
             function (application) {
 
-                const companyMatch =
-                    application.company
-                        .toLowerCase()
-                        .includes(searchText);
+                const company =
+                    (
+                        application.company ||
+                        ""
+                    ).toLowerCase();
 
 
-                const roleMatch =
-                    application.role
-                        .toLowerCase()
-                        .includes(searchText);
+                const role =
+                    (
+                        application.role ||
+                        ""
+                    ).toLowerCase();
+
+
+                const notes =
+                    (
+                        application.notes ||
+                        ""
+                    ).toLowerCase();
 
 
                 const matchesSearch =
-                    companyMatch ||
-                    roleMatch;
+                    company.includes(
+                        searchText
+                    ) ||
+                    role.includes(
+                        searchText
+                    ) ||
+                    notes.includes(
+                        searchText
+                    );
 
 
                 const matchesStatus =
@@ -1087,8 +1097,10 @@ function escapeHTML(value) {
     const div =
         document.createElement("div");
 
+
     div.textContent =
         value ?? "";
+
 
     return div.innerHTML;
 

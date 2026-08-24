@@ -5,116 +5,286 @@ const db = require("./database");
 const app = express();
 const PORT = 3000;
 
-// Middleware
+
+// ==========================================
+// MIDDLEWARE
+// ==========================================
+
 app.use(cors());
+
 app.use(express.json());
+
 app.use(express.static("public"));
 
-// ===============================
-// GET - Get all applications
-// ===============================
+
+// ==========================================
+// GET - GET ALL APPLICATIONS
+// ==========================================
+
 app.get("/api/applications", (req, res) => {
-    const applications = db
-        .prepare("SELECT * FROM applications ORDER BY id DESC")
-        .all();
 
-    res.json(applications);
+    try {
+
+        const applications = db
+            .prepare(`
+                SELECT *
+                FROM applications
+                ORDER BY id DESC
+            `)
+            .all();
+
+
+        res.json(applications);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to get applications."
+        });
+
+    }
+
 });
 
-// ===============================
-// POST - Add an application
-// ===============================
+
+// ==========================================
+// POST - ADD APPLICATION
+// ==========================================
+
 app.post("/api/applications", (req, res) => {
-    const { company, role, status, deadline } = req.body;
 
-    if (!company || !role || !status) {
-        return res.status(400).json({
-            message: "Company, role and status are required."
-        });
-    }
+    try {
 
-    const result = db
-        .prepare(`
-            INSERT INTO applications
-            (company, role, status, deadline)
-            VALUES (?, ?, ?, ?)
-        `)
-        .run(company, role, status, deadline || null);
-
-    const application = db
-        .prepare("SELECT * FROM applications WHERE id = ?")
-        .get(result.lastInsertRowid);
-
-    res.status(201).json(application);
-});
-
-// ===============================
-// PUT - Edit an application
-// ===============================
-app.put("/api/applications/:id", (req, res) => {
-    const { id } = req.params;
-    const { company, role, status, deadline } = req.body;
-
-    if (!company || !role || !status) {
-        return res.status(400).json({
-            message: "Company, role and status are required."
-        });
-    }
-
-    const result = db
-        .prepare(`
-            UPDATE applications
-            SET company = ?,
-                role = ?,
-                status = ?,
-                deadline = ?
-            WHERE id = ?
-        `)
-        .run(
+        const {
             company,
             role,
             status,
-            deadline || null,
-            id
-        );
+            deadline,
+            notes
+        } = req.body;
 
-    if (result.changes === 0) {
-        return res.status(404).json({
-            message: "Application not found."
+
+        if (!company || !role || !status) {
+
+            return res.status(400).json({
+
+                message:
+                    "Company, role and status are required."
+
+            });
+
+        }
+
+
+        const result = db
+            .prepare(`
+                INSERT INTO applications
+                (
+                    company,
+                    role,
+                    status,
+                    deadline,
+                    notes
+                )
+                VALUES (?, ?, ?, ?, ?)
+            `)
+            .run(
+                company,
+                role,
+                status,
+                deadline || null,
+                notes || null
+            );
+
+
+        const application = db
+            .prepare(`
+                SELECT *
+                FROM applications
+                WHERE id = ?
+            `)
+            .get(result.lastInsertRowid);
+
+
+        res.status(201).json(application);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+
+            message:
+                "Failed to add application."
+
         });
+
     }
 
-    const application = db
-        .prepare("SELECT * FROM applications WHERE id = ?")
-        .get(id);
-
-    res.json(application);
 });
 
-// ===============================
-// DELETE - Delete an application
-// ===============================
+
+// ==========================================
+// PUT - EDIT APPLICATION
+// ==========================================
+
+app.put("/api/applications/:id", (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+
+        const {
+            company,
+            role,
+            status,
+            deadline,
+            notes
+        } = req.body;
+
+
+        if (!company || !role || !status) {
+
+            return res.status(400).json({
+
+                message:
+                    "Company, role and status are required."
+
+            });
+
+        }
+
+
+        const result = db
+            .prepare(`
+                UPDATE applications
+
+                SET
+                    company = ?,
+                    role = ?,
+                    status = ?,
+                    deadline = ?,
+                    notes = ?
+
+                WHERE id = ?
+            `)
+            .run(
+                company,
+                role,
+                status,
+                deadline || null,
+                notes || null,
+                id
+            );
+
+
+        if (result.changes === 0) {
+
+            return res.status(404).json({
+
+                message:
+                    "Application not found."
+
+            });
+
+        }
+
+
+        const application = db
+            .prepare(`
+                SELECT *
+                FROM applications
+                WHERE id = ?
+            `)
+            .get(id);
+
+
+        res.json(application);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+
+            message:
+                "Failed to update application."
+
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// DELETE - DELETE APPLICATION
+// ==========================================
+
 app.delete("/api/applications/:id", (req, res) => {
-    const { id } = req.params;
 
-    const result = db
-        .prepare("DELETE FROM applications WHERE id = ?")
-        .run(id);
+    try {
 
-    if (result.changes === 0) {
-        return res.status(404).json({
-            message: "Application not found."
+        const { id } = req.params;
+
+
+        const result = db
+            .prepare(`
+                DELETE FROM applications
+                WHERE id = ?
+            `)
+            .run(id);
+
+
+        if (result.changes === 0) {
+
+            return res.status(404).json({
+
+                message:
+                    "Application not found."
+
+            });
+
+        }
+
+
+        res.json({
+
+            message:
+                "Application deleted successfully."
+
         });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+
+            message:
+                "Failed to delete application."
+
+        });
+
     }
 
-    res.json({
-        message: "Application deleted successfully."
-    });
 });
 
-// ===============================
-// Start server
-// ===============================
+
+// ==========================================
+// START SERVER
+// ==========================================
+
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+
+    console.log(
+        `Server running at http://localhost:${PORT}`
+    );
+
 });

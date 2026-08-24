@@ -1272,5 +1272,87 @@ footer {
             6px;
 
     }
+/* ==========================================
+   NOTES
+========================================== */
 
+.notes-group {
+    width: 100%;
+}
+
+.notes-group textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.notes-group textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+
+/* ==========================================
+   APPLICATION NOTES
+========================================== */
+
+.application-notes {
+    margin-top: 15px;
+    padding: 12px;
+    background: #f8fafc;
+    border-left: 4px solid #2563eb;
+    border-radius: 6px;
+}
+
+.application-notes strong {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.application-notes p {
+    margin: 0;
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   CARD BUTTONS
+========================================== */
+
+.card-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.edit-button,
+.delete-button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.edit-button {
+    background: #2563eb;
+    color: white;
+}
+
+.delete-button {
+    background: #dc2626;
+    color: white;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+    opacity: 0.85;
+}
 }

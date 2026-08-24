@@ -8,7 +8,8 @@ db.prepare(`
         company TEXT NOT NULL,
         role TEXT NOT NULL,
         status TEXT NOT NULL,
-        deadline TEXT
+        deadline TEXT,
+        notes TEXT
     )
 `).run();
 
