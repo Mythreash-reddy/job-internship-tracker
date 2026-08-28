@@ -1,15 +1,20 @@
 // ==========================================
-// ELEMENTS
+// GLOBAL VARIABLES
 // ==========================================
 
-const form =
+let applications = [];
+let editingId = null;
+
+
+// ==========================================
+// DOM ELEMENTS
+// ==========================================
+
+const applicationForm =
     document.getElementById("applicationForm");
 
 const applicationList =
     document.getElementById("applicationList");
-
-const formTitle =
-    document.getElementById("formTitle");
 
 const submitButton =
     document.getElementById("submitButton");
@@ -17,80 +22,8 @@ const submitButton =
 const cancelButton =
     document.getElementById("cancelButton");
 
-const searchInput =
-    document.getElementById("searchInput");
-
-const filterStatus =
-    document.getElementById("filterStatus");
-
-
-// Dashboard
-
-const totalCount =
-    document.getElementById("totalCount");
-
-const appliedCount =
-    document.getElementById("appliedCount");
-
-const interviewCount =
-    document.getElementById("interviewCount");
-
-const offerCount =
-    document.getElementById("offerCount");
-
-const rejectedCount =
-    document.getElementById("rejectedCount");
-
-
-// Deadline section
-
-const deadlineList =
-    document.getElementById("deadlineList");
-
-
-// Analytics
-
-const appliedBar =
-    document.getElementById("appliedBar");
-
-const interviewBar =
-    document.getElementById("interviewBar");
-
-const offerBar =
-    document.getElementById("offerBar");
-
-const rejectedBar =
-    document.getElementById("rejectedBar");
-
-const appliedPercentage =
-    document.getElementById("appliedPercentage");
-
-const interviewPercentage =
-    document.getElementById("interviewPercentage");
-
-const offerPercentage =
-    document.getElementById("offerPercentage");
-
-const rejectedPercentage =
-    document.getElementById("rejectedPercentage");
-
-const interviewRate =
-    document.getElementById("interviewRate");
-
-const offerRate =
-    document.getElementById("offerRate");
-
-const rejectionRate =
-    document.getElementById("rejectionRate");
-
-
-// ==========================================
-// VARIABLES
-// ==========================================
-
-let editingId = null;
-
-let allApplications = [];
+const formTitle =
+    document.getElementById("formTitle");
 
 
 // ==========================================
@@ -104,433 +37,217 @@ async function loadApplications() {
         const response =
             await fetch("/api/applications");
 
-
         if (!response.ok) {
-
-            throw new Error(
-                "Failed to load applications"
-            );
-
+            throw new Error("Failed to load applications.");
         }
 
+        applications = await response.json();
 
-        allApplications =
-            await response.json();
-
+        displayApplications();
 
         updateDashboard();
-
-        updateAnalytics();
-
-        updateUpcomingDeadlines();
-
-        filterApplications();
-
 
     } catch (error) {
 
         console.error(error);
 
         applicationList.innerHTML = `
-            <p class="no-results">
-                Unable to load applications.
+            <p class="error-message">
+                Failed to load applications.
             </p>
         `;
-
     }
-
 }
 
 
 // ==========================================
-// DASHBOARD
+// DISPLAY APPLICATIONS
 // ==========================================
 
-function updateDashboard() {
+function displayApplications(list = applications) {
 
-    const total =
-        allApplications.length;
+    if (list.length === 0) {
 
-
-    const applied =
-        allApplications.filter(
-            application =>
-                application.status === "Applied"
-        ).length;
-
-
-    const interview =
-        allApplications.filter(
-            application =>
-                application.status === "Interview"
-        ).length;
-
-
-    const offer =
-        allApplications.filter(
-            application =>
-                application.status === "Offer"
-        ).length;
-
-
-    const rejected =
-        allApplications.filter(
-            application =>
-                application.status === "Rejected"
-        ).length;
-
-
-    totalCount.textContent =
-        total;
-
-    appliedCount.textContent =
-        applied;
-
-    interviewCount.textContent =
-        interview;
-
-    offerCount.textContent =
-        offer;
-
-    rejectedCount.textContent =
-        rejected;
-
-}
-
-
-// ==========================================
-// ANALYTICS
-// ==========================================
-
-function updateAnalytics() {
-
-    const total =
-        allApplications.length;
-
-
-    const applied =
-        allApplications.filter(
-            application =>
-                application.status === "Applied"
-        ).length;
-
-
-    const interview =
-        allApplications.filter(
-            application =>
-                application.status === "Interview"
-        ).length;
-
-
-    const offer =
-        allApplications.filter(
-            application =>
-                application.status === "Offer"
-        ).length;
-
-
-    const rejected =
-        allApplications.filter(
-            application =>
-                application.status === "Rejected"
-        ).length;
-
-
-    const appliedPercent =
-        total === 0
-            ? 0
-            : Math.round(
-                (applied / total) * 100
-            );
-
-
-    const interviewPercent =
-        total === 0
-            ? 0
-            : Math.round(
-                (interview / total) * 100
-            );
-
-
-    const offerPercent =
-        total === 0
-            ? 0
-            : Math.round(
-                (offer / total) * 100
-            );
-
-
-    const rejectedPercent =
-        total === 0
-            ? 0
-            : Math.round(
-                (rejected / total) * 100
-            );
-
-
-    appliedBar.style.width =
-        `${appliedPercent}%`;
-
-    interviewBar.style.width =
-        `${interviewPercent}%`;
-
-    offerBar.style.width =
-        `${offerPercent}%`;
-
-    rejectedBar.style.width =
-        `${rejectedPercent}%`;
-
-
-    appliedPercentage.textContent =
-        `${appliedPercent}%`;
-
-    interviewPercentage.textContent =
-        `${interviewPercent}%`;
-
-    offerPercentage.textContent =
-        `${offerPercent}%`;
-
-    rejectedPercentage.textContent =
-        `${rejectedPercent}%`;
-
-
-    const interviewRateValue =
-        total === 0
-            ? 0
-            : Math.round(
-                (interview / total) * 100
-            );
-
-
-    const offerRateValue =
-        total === 0
-            ? 0
-            : Math.round(
-                (offer / total) * 100
-            );
-
-
-    const rejectionRateValue =
-        total === 0
-            ? 0
-            : Math.round(
-                (rejected / total) * 100
-            );
-
-
-    interviewRate.textContent =
-        `${interviewRateValue}%`;
-
-    offerRate.textContent =
-        `${offerRateValue}%`;
-
-    rejectionRate.textContent =
-        `${rejectionRateValue}%`;
-
-}
-
-
-// ==========================================
-// UPCOMING DEADLINES
-// ==========================================
-
-function updateUpcomingDeadlines() {
-
-    const today =
-        new Date();
-
-    today.setHours(
-        0,
-        0,
-        0,
-        0
-    );
-
-
-    const upcomingApplications =
-        allApplications
-            .filter(application => {
-
-                if (!application.deadline) {
-
-                    return false;
-
-                }
-
-
-                const deadline =
-                    new Date(
-                        application.deadline +
-                        "T00:00:00"
-                    );
-
-
-                return deadline >= today;
-
-            })
-            .sort(
-                (a, b) => {
-
-                    const dateA =
-                        new Date(
-                            a.deadline +
-                            "T00:00:00"
-                        );
-
-
-                    const dateB =
-                        new Date(
-                            b.deadline +
-                            "T00:00:00"
-                        );
-
-
-                    return dateA - dateB;
-
-                }
-            );
-
-
-    deadlineList.innerHTML = "";
-
-
-    if (
-        upcomingApplications.length === 0
-    ) {
-
-        deadlineList.innerHTML = `
-            <p class="no-results">
-                No upcoming deadlines.
+        applicationList.innerHTML = `
+            <p class="no-applications">
+                No applications found.
             </p>
         `;
 
         return;
-
     }
 
 
-    upcomingApplications
-        .slice(0, 5)
-        .forEach(application => {
-
-            const card =
-                document.createElement("div");
+    applicationList.innerHTML = "";
 
 
-            card.classList.add(
-                "deadline-card"
-            );
+    list.forEach(application => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "application-card";
 
 
-            const deadlineDate =
-                new Date(
-                    application.deadline +
-                    "T00:00:00"
-                );
+        const priority =
+            application.priority || "Medium";
 
 
-            const formattedDate =
-                deadlineDate.toLocaleDateString(
-                    "en-US",
-                    {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric"
-                    }
-                );
+        let priorityClass =
+            priority.toLowerCase();
 
 
-            const difference =
-                Math.ceil(
-                    (
-                        deadlineDate - today
-                    ) /
-                    (
-                        1000 *
-                        60 *
-                        60 *
-                        24
-                    )
-                );
+        card.innerHTML = `
+
+            <div class="application-header">
+
+                <h3>
+                    ${escapeHTML(application.company)}
+                </h3>
+
+                <span class="priority ${priorityClass}">
+                    ${getPriorityEmoji(priority)}
+                    ${escapeHTML(priority)}
+                </span>
+
+            </div>
 
 
-            let urgencyText;
+            <p>
+                <strong>Role:</strong>
+                ${escapeHTML(application.role)}
+            </p>
 
 
-            if (difference === 0) {
+            <p>
+                <strong>Status:</strong>
+                ${escapeHTML(application.status)}
+            </p>
 
-                urgencyText =
-                    "Due today";
 
-                card.classList.add(
-                    "deadline-today"
-                );
+            <p>
+                <strong>Priority:</strong>
+                ${getPriorityEmoji(priority)}
+                ${escapeHTML(priority)}
+            </p>
 
-            } else if (difference <= 3) {
 
-                urgencyText =
-                    `${difference} day${
-                        difference === 1
-                            ? ""
-                            : "s"
-                    } left`;
-
-                card.classList.add(
-                    "deadline-soon"
-                );
-
-            } else {
-
-                urgencyText =
-                    `${difference} days left`;
-
-                card.classList.add(
-                    "deadline-normal"
-                );
-
+            ${
+                application.deadline
+                    ? `
+                    <p>
+                        <strong>Deadline:</strong>
+                        ${formatDate(application.deadline)}
+                    </p>
+                    `
+                    : ""
             }
 
 
-            card.innerHTML = `
-
-                <div>
-
-                    <h3>
-                        ${escapeHTML(
-                            application.company
-                        )}
-                    </h3>
-
+            ${
+                application.job_url
+                    ? `
                     <p>
-                        ${escapeHTML(
-                            application.role
-                        )}
+                        <strong>Job Posting:</strong>
+
+                        <a
+                            href="${escapeHTML(application.job_url)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            View Job Posting
+                        </a>
+
                     </p>
-
-                </div>
-
-
-                <div class="deadline-info">
-
-                    <strong>
-                        ${formattedDate}
-                    </strong>
-
-                    <span>
-                        ${urgencyText}
-                    </span>
-
-                </div>
-
-            `;
+                    `
+                    : ""
+            }
 
 
-            deadlineList.appendChild(
-                card
-            );
+            ${
+                application.notes
+                    ? `
+                    <div class="application-notes">
 
-        });
+                        <strong>📝 Notes</strong>
 
+                        <p>
+                            ${escapeHTML(application.notes)}
+                        </p>
+
+                    </div>
+                    `
+                    : ""
+            }
+
+
+            <div class="card-buttons">
+
+                <button
+                    class="edit-button"
+                    data-id="${application.id}"
+                >
+                    Edit
+                </button>
+
+
+                <button
+                    class="delete-button"
+                    data-id="${application.id}"
+                >
+                    Delete
+                </button>
+
+            </div>
+
+        `;
+
+
+        // Edit button
+
+        card
+            .querySelector(".edit-button")
+            .addEventListener("click", () => {
+
+                editApplication(application.id);
+
+            });
+
+
+        // Delete button
+
+        card
+            .querySelector(".delete-button")
+            .addEventListener("click", () => {
+
+                deleteApplication(application.id);
+
+            });
+
+
+        applicationList.appendChild(card);
+
+    });
+
+}
+
+
+// ==========================================
+// GET PRIORITY EMOJI
+// ==========================================
+
+function getPriorityEmoji(priority) {
+
+    if (priority === "High") {
+        return "🔴";
+    }
+
+    if (priority === "Low") {
+        return "🟢";
+    }
+
+    return "🟡";
 }
 
 
@@ -538,7 +255,7 @@ function updateUpcomingDeadlines() {
 // ADD / EDIT APPLICATION
 // ==========================================
 
-form.addEventListener(
+applicationForm.addEventListener(
     "submit",
     async function (event) {
 
@@ -548,42 +265,66 @@ form.addEventListener(
         const application = {
 
             company:
-                document.getElementById(
-                    "company"
-                ).value.trim(),
+                document.getElementById("company")
+                    .value
+                    .trim(),
 
             role:
-                document.getElementById(
-                    "role"
-                ).value.trim(),
+                document.getElementById("role")
+                    .value
+                    .trim(),
 
             status:
-                document.getElementById(
-                    "status"
-                ).value,
+                document.getElementById("status")
+                    .value,
+
+            priority:
+                document.getElementById("priority")
+                    .value,
+
+            job_url:
+                document.getElementById("job_url")
+                    .value
+                    .trim(),
 
             deadline:
-                document.getElementById(
-                    "deadline"
-                ).value,
+                document.getElementById("deadline")
+                    .value,
 
             notes:
-                document.getElementById(
-                    "notes"
-                ).value.trim()
+                document.getElementById("notes")
+                    .value
+                    .trim()
 
         };
 
 
-        // ==================================
-        // EDIT
-        // ==================================
+        if (
+            !application.company ||
+            !application.role ||
+            !application.status
+        ) {
 
-        if (editingId !== null) {
+            alert(
+                "Company, role and status are required."
+            );
 
-            try {
+            return;
+        }
 
-                const response =
+
+        try {
+
+            let response;
+
+
+            // ==================================
+            // EDIT
+            // ==================================
+
+            if (editingId !== null) {
+
+                response =
                     await fetch(
                         `/api/applications/${editingId}`,
                         {
@@ -595,90 +336,58 @@ form.addEventListener(
                             },
 
                             body:
-                                JSON.stringify(
-                                    application
-                                )
+                                JSON.stringify(application)
                         }
                     );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Failed to update application"
-                    );
-
-                }
-
-
-                editingId = null;
-
-                form.reset();
-
-                formTitle.textContent =
-                    "Add Application";
-
-                submitButton.textContent =
-                    "Add Application";
-
-                cancelButton.style.display =
-                    "none";
-
-
-                await loadApplications();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Failed to update application."
-                );
 
             }
 
 
-            return;
+            // ==================================
+            // ADD
+            // ==================================
 
-        }
+            else {
+
+                response =
+                    await fetch(
+                        "/api/applications",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(application)
+                        }
+                    );
+
+            }
 
 
-        // ==================================
-        // ADD
-        // ==================================
-
-        try {
-
-            const response =
-                await fetch(
-                    "/api/applications",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(
-                                application
-                            )
-                    }
-                );
+            const data =
+                await response.json();
 
 
             if (!response.ok) {
 
                 throw new Error(
-                    "Failed to add application"
+                    data.message ||
+                    "Something went wrong."
                 );
 
             }
 
 
-            form.reset();
+            // Reset form
+
+            resetForm();
+
+
+            // Reload applications
 
             await loadApplications();
 
@@ -688,7 +397,8 @@ form.addEventListener(
             console.error(error);
 
             alert(
-                "Failed to add application."
+                error.message ||
+                "Failed to save application."
             );
 
         }
@@ -698,175 +408,60 @@ form.addEventListener(
 
 
 // ==========================================
-// DISPLAY APPLICATION
+// EDIT APPLICATION
 // ==========================================
 
-function displayApplication(application) {
+function editApplication(id) {
 
-    const card =
-        document.createElement("div");
-
-
-    card.classList.add(
-        "application-card"
-    );
-
-
-    card.innerHTML = `
-
-        <h3>
-            ${escapeHTML(
-                application.company
-            )}
-        </h3>
-
-        <p>
-            <strong>Role:</strong>
-            ${escapeHTML(
-                application.role
-            )}
-        </p>
-
-        <p>
-            <strong>Status:</strong>
-            ${escapeHTML(
-                application.status
-            )}
-        </p>
-
-        <p>
-            <strong>Deadline:</strong>
-            ${
-                application.deadline
-                    ? escapeHTML(
-                        application.deadline
-                    )
-                    : "Not specified"
-            }
-        </p>
-
-        ${
-            application.notes
-                ? `
-                    <div class="application-notes">
-
-                        <strong>
-                            📝 Notes
-                        </strong>
-
-                        <p>
-                            ${escapeHTML(
-                                application.notes
-                            )}
-                        </p>
-
-                    </div>
-                `
-                : ""
-        }
-
-
-        <div class="card-buttons">
-
-            <button
-                class="edit-button"
-                type="button"
-            >
-                Edit
-            </button>
-
-            <button
-                class="delete-button"
-                type="button"
-            >
-                Delete
-            </button>
-
-        </div>
-
-    `;
-
-
-    const editButton =
-        card.querySelector(
-            ".edit-button"
+    const application =
+        applications.find(
+            app => app.id === id
         );
 
 
-    editButton.addEventListener(
-        "click",
-        function () {
+    if (!application) {
 
-            startEditing(
-                application
-            );
+        alert("Application not found.");
 
-        }
-    );
+        return;
+    }
 
 
-    const deleteButton =
-        card.querySelector(
-            ".delete-button"
-        );
+    editingId = id;
 
 
-    deleteButton.addEventListener(
-        "click",
-        function () {
-
-            deleteApplication(
-                application.id
-            );
-
-        }
-    );
+    document.getElementById("company")
+        .value =
+        application.company || "";
 
 
-    applicationList.appendChild(
-        card
-    );
-
-}
+    document.getElementById("role")
+        .value =
+        application.role || "";
 
 
-// ==========================================
-// START EDITING
-// ==========================================
-
-function startEditing(application) {
-
-    editingId =
-        application.id;
+    document.getElementById("status")
+        .value =
+        application.status || "Applied";
 
 
-    document.getElementById(
-        "company"
-    ).value =
-        application.company;
+    document.getElementById("priority")
+        .value =
+        application.priority || "Medium";
 
 
-    document.getElementById(
-        "role"
-    ).value =
-        application.role;
+    document.getElementById("job_url")
+        .value =
+        application.job_url || "";
 
 
-    document.getElementById(
-        "status"
-    ).value =
-        application.status;
-
-
-    document.getElementById(
-        "deadline"
-    ).value =
+    document.getElementById("deadline")
+        .value =
         application.deadline || "";
 
 
-    document.getElementById(
-        "notes"
-    ).value =
+    document.getElementById("notes")
+        .value =
         application.notes || "";
 
 
@@ -879,15 +474,14 @@ function startEditing(application) {
 
 
     cancelButton.style.display =
-        "block";
+        "inline-block";
 
 
-    window.scrollTo({
+    // Scroll to form
 
-        top: 0,
-
-        behavior: "smooth"
-
+    applicationForm.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
     });
 
 }
@@ -901,21 +495,50 @@ cancelButton.addEventListener(
     "click",
     function () {
 
-        editingId = null;
-
-        form.reset();
-
-        formTitle.textContent =
-            "Add Application";
-
-        submitButton.textContent =
-            "Add Application";
-
-        cancelButton.style.display =
-            "none";
+        resetForm();
 
     }
 );
+
+
+// ==========================================
+// RESET FORM
+// ==========================================
+
+function resetForm() {
+
+    applicationForm.reset();
+
+
+    editingId = null;
+
+
+    formTitle.textContent =
+        "Add Application";
+
+
+    submitButton.textContent =
+        "Add Application";
+
+
+    cancelButton.style.display =
+        "none";
+
+
+    // Make sure Priority returns to Medium
+
+    const priority =
+        document.getElementById("priority");
+
+
+    if (priority) {
+
+        priority.value =
+            "Medium";
+
+    }
+
+}
 
 
 // ==========================================
@@ -931,9 +554,7 @@ async function deleteApplication(id) {
 
 
     if (!confirmed) {
-
         return;
-
     }
 
 
@@ -948,10 +569,15 @@ async function deleteApplication(id) {
             );
 
 
+        const data =
+            await response.json();
+
+
         if (!response.ok) {
 
             throw new Error(
-                "Failed to delete application"
+                data.message ||
+                "Failed to delete application."
             );
 
         }
@@ -965,6 +591,7 @@ async function deleteApplication(id) {
         console.error(error);
 
         alert(
+            error.message ||
             "Failed to delete application."
         );
 
@@ -974,98 +601,221 @@ async function deleteApplication(id) {
 
 
 // ==========================================
-// SEARCH + FILTER
+// SEARCH
 // ==========================================
 
-function filterApplications() {
+function searchApplications() {
 
-    const searchText =
+    const searchInput =
+        document.getElementById("searchInput");
+
+
+    if (!searchInput) {
+        return;
+    }
+
+
+    const searchTerm =
         searchInput.value
             .toLowerCase()
             .trim();
 
 
-    const selectedStatus =
-        filterStatus.value;
+    if (!searchTerm) {
 
-
-    const filteredApplications =
-        allApplications.filter(
-            function (application) {
-
-                const company =
-                    (
-                        application.company ||
-                        ""
-                    ).toLowerCase();
-
-
-                const role =
-                    (
-                        application.role ||
-                        ""
-                    ).toLowerCase();
-
-
-                const notes =
-                    (
-                        application.notes ||
-                        ""
-                    ).toLowerCase();
-
-
-                const matchesSearch =
-                    company.includes(
-                        searchText
-                    ) ||
-                    role.includes(
-                        searchText
-                    ) ||
-                    notes.includes(
-                        searchText
-                    );
-
-
-                const matchesStatus =
-                    selectedStatus === "All" ||
-                    application.status ===
-                        selectedStatus;
-
-
-                return (
-                    matchesSearch &&
-                    matchesStatus
-                );
-
-            }
-        );
-
-
-    applicationList.innerHTML = "";
-
-
-    if (
-        filteredApplications.length === 0
-    ) {
-
-        applicationList.innerHTML = `
-            <p class="no-results">
-                No applications found.
-            </p>
-        `;
+        displayApplications();
 
         return;
-
     }
 
 
-    filteredApplications.forEach(
-        function (application) {
+    const filtered =
+        applications.filter(application => {
 
-            displayApplication(
-                application
+            return (
+
+                application.company
+                    .toLowerCase()
+                    .includes(searchTerm)
+
+                ||
+
+                application.role
+                    .toLowerCase()
+                    .includes(searchTerm)
+
+                ||
+
+                (application.notes || "")
+                    .toLowerCase()
+                    .includes(searchTerm)
+
             );
 
+        });
+
+
+    displayApplications(filtered);
+
+}
+
+
+// ==========================================
+// STATUS FILTER
+// ==========================================
+
+function filterApplications() {
+
+    const filter =
+        document.getElementById("statusFilter");
+
+
+    if (!filter) {
+        return;
+    }
+
+
+    const selectedStatus =
+        filter.value;
+
+
+    if (
+        selectedStatus === "All" ||
+        selectedStatus === ""
+    ) {
+
+        displayApplications();
+
+        return;
+    }
+
+
+    const filtered =
+        applications.filter(
+            application =>
+                application.status ===
+                selectedStatus
+        );
+
+
+    displayApplications(filtered);
+
+}
+
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+
+function updateDashboard() {
+
+    const total =
+        applications.length;
+
+
+    const applied =
+        applications.filter(
+            app =>
+                app.status === "Applied"
+        ).length;
+
+
+    const interviews =
+        applications.filter(
+            app =>
+                app.status === "Interview"
+        ).length;
+
+
+    const offers =
+        applications.filter(
+            app =>
+                app.status === "Offer"
+        ).length;
+
+
+    const rejected =
+        applications.filter(
+            app =>
+                app.status === "Rejected"
+        ).length;
+
+
+    updateElement(
+        "totalApplications",
+        total
+    );
+
+
+    updateElement(
+        "appliedCount",
+        applied
+    );
+
+
+    updateElement(
+        "interviewCount",
+        interviews
+    );
+
+
+    updateElement(
+        "offerCount",
+        offers
+    );
+
+
+    updateElement(
+        "rejectedCount",
+        rejected
+    );
+
+}
+
+
+// ==========================================
+// UPDATE ELEMENT
+// ==========================================
+
+function updateElement(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+// ==========================================
+// FORMAT DATE
+// ==========================================
+
+function formatDate(dateString) {
+
+    if (!dateString) {
+        return "";
+    }
+
+
+    const date =
+        new Date(
+            dateString + "T00:00:00"
+        );
+
+
+    return date.toLocaleDateString(
+        undefined,
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
         }
     );
 
@@ -1073,33 +823,25 @@ function filterApplications() {
 
 
 // ==========================================
-// SEARCH EVENTS
-// ==========================================
-
-searchInput.addEventListener(
-    "input",
-    filterApplications
-);
-
-
-filterStatus.addEventListener(
-    "change",
-    filterApplications
-);
-
-
-// ==========================================
-// SECURITY HELPER
+// ESCAPE HTML
 // ==========================================
 
 function escapeHTML(value) {
+
+    if (value === null ||
+        value === undefined) {
+
+        return "";
+
+    }
+
 
     const div =
         document.createElement("div");
 
 
     div.textContent =
-        value ?? "";
+        String(value);
 
 
     return div.innerHTML;
@@ -1108,7 +850,47 @@ function escapeHTML(value) {
 
 
 // ==========================================
-// START APPLICATION
+// SEARCH EVENT
+// ==========================================
+
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
+
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        searchApplications
+    );
+
+}
+
+
+// ==========================================
+// FILTER EVENT
+// ==========================================
+
+const statusFilter =
+    document.getElementById(
+        "statusFilter"
+    );
+
+
+if (statusFilter) {
+
+    statusFilter.addEventListener(
+        "change",
+        filterApplications
+    );
+
+}
+
+
+// ==========================================
+// INITIAL LOAD
 // ==========================================
 
 loadApplications();

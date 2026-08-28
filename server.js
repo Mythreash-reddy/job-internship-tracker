@@ -11,9 +11,7 @@ const PORT = 3000;
 // ==========================================
 
 app.use(cors());
-
 app.use(express.json());
-
 app.use(express.static("public"));
 
 
@@ -32,7 +30,6 @@ app.get("/api/applications", (req, res) => {
                 ORDER BY id DESC
             `)
             .all();
-
 
         res.json(applications);
 
@@ -61,21 +58,25 @@ app.post("/api/applications", (req, res) => {
             company,
             role,
             status,
+            priority,
             deadline,
-            notes
+            notes,
+            job_url
         } = req.body;
 
 
         if (!company || !role || !status) {
 
             return res.status(400).json({
-
                 message:
                     "Company, role and status are required."
-
             });
 
         }
+
+
+        const selectedPriority =
+            priority || "Medium";
 
 
         const result = db
@@ -85,17 +86,21 @@ app.post("/api/applications", (req, res) => {
                     company,
                     role,
                     status,
+                    priority,
                     deadline,
-                    notes
+                    notes,
+                    job_url
                 )
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             `)
             .run(
                 company,
                 role,
                 status,
+                selectedPriority,
                 deadline || null,
-                notes || null
+                notes || null,
+                job_url || null
             );
 
 
@@ -116,10 +121,8 @@ app.post("/api/applications", (req, res) => {
         console.error(error);
 
         res.status(500).json({
-
             message:
                 "Failed to add application."
-
         });
 
     }
@@ -142,21 +145,25 @@ app.put("/api/applications/:id", (req, res) => {
             company,
             role,
             status,
+            priority,
             deadline,
-            notes
+            notes,
+            job_url
         } = req.body;
 
 
         if (!company || !role || !status) {
 
             return res.status(400).json({
-
                 message:
                     "Company, role and status are required."
-
             });
 
         }
+
+
+        const selectedPriority =
+            priority || "Medium";
 
 
         const result = db
@@ -167,8 +174,10 @@ app.put("/api/applications/:id", (req, res) => {
                     company = ?,
                     role = ?,
                     status = ?,
+                    priority = ?,
                     deadline = ?,
-                    notes = ?
+                    notes = ?,
+                    job_url = ?
 
                 WHERE id = ?
             `)
@@ -176,8 +185,10 @@ app.put("/api/applications/:id", (req, res) => {
                 company,
                 role,
                 status,
+                selectedPriority,
                 deadline || null,
                 notes || null,
+                job_url || null,
                 id
             );
 
@@ -185,10 +196,8 @@ app.put("/api/applications/:id", (req, res) => {
         if (result.changes === 0) {
 
             return res.status(404).json({
-
                 message:
                     "Application not found."
-
             });
 
         }
@@ -211,10 +220,8 @@ app.put("/api/applications/:id", (req, res) => {
         console.error(error);
 
         res.status(500).json({
-
             message:
                 "Failed to update application."
-
         });
 
     }
@@ -244,20 +251,16 @@ app.delete("/api/applications/:id", (req, res) => {
         if (result.changes === 0) {
 
             return res.status(404).json({
-
                 message:
                     "Application not found."
-
             });
 
         }
 
 
         res.json({
-
             message:
                 "Application deleted successfully."
-
         });
 
 
@@ -266,10 +269,8 @@ app.delete("/api/applications/:id", (req, res) => {
         console.error(error);
 
         res.status(500).json({
-
             message:
                 "Failed to delete application."
-
         });
 
     }
