@@ -16,6 +16,9 @@ const applicationForm =
 const applicationList =
     document.getElementById("applicationList");
 
+const followUpList =
+    document.getElementById("followUpList");
+
 const submitButton =
     document.getElementById("submitButton");
 
@@ -37,26 +40,40 @@ async function loadApplications() {
         const response =
             await fetch("/api/applications");
 
+
         if (!response.ok) {
-            throw new Error("Failed to load applications.");
+
+            throw new Error(
+                "Failed to load applications."
+            );
+
         }
 
-        applications = await response.json();
+
+        applications =
+            await response.json();
+
 
         displayApplications();
 
         updateDashboard();
 
+        displayFollowUps();
+
+
     } catch (error) {
 
         console.error(error);
+
 
         applicationList.innerHTML = `
             <p class="error-message">
                 Failed to load applications.
             </p>
         `;
+
     }
+
 }
 
 
@@ -64,7 +81,9 @@ async function loadApplications() {
 // DISPLAY APPLICATIONS
 // ==========================================
 
-function displayApplications(list = applications) {
+function displayApplications(
+    list = applications
+) {
 
     if (list.length === 0) {
 
@@ -75,6 +94,7 @@ function displayApplications(list = applications) {
         `;
 
         return;
+
     }
 
 
@@ -86,15 +106,17 @@ function displayApplications(list = applications) {
         const card =
             document.createElement("div");
 
+
         card.className =
             "application-card";
 
 
         const priority =
-            application.priority || "Medium";
+            application.priority ||
+            "Medium";
 
 
-        let priorityClass =
+        const priorityClass =
             priority.toLowerCase();
 
 
@@ -103,10 +125,15 @@ function displayApplications(list = applications) {
             <div class="application-header">
 
                 <h3>
-                    ${escapeHTML(application.company)}
+                    ${escapeHTML(
+                        application.company
+                    )}
                 </h3>
 
-                <span class="priority ${priorityClass}">
+
+                <span
+                    class="priority ${priorityClass}"
+                >
                     ${getPriorityEmoji(priority)}
                     ${escapeHTML(priority)}
                 </span>
@@ -116,30 +143,49 @@ function displayApplications(list = applications) {
 
             <p>
                 <strong>Role:</strong>
-                ${escapeHTML(application.role)}
+                ${escapeHTML(
+                    application.role
+                )}
             </p>
 
 
             <p>
                 <strong>Status:</strong>
-                ${escapeHTML(application.status)}
-            </p>
-
-
-            <p>
-                <strong>Priority:</strong>
-                ${getPriorityEmoji(priority)}
-                ${escapeHTML(priority)}
+                ${escapeHTML(
+                    application.status
+                )}
             </p>
 
 
             ${
                 application.deadline
                     ? `
-                    <p>
-                        <strong>Deadline:</strong>
-                        ${formatDate(application.deadline)}
-                    </p>
+                        <p>
+                            <strong>
+                                Deadline:
+                            </strong>
+
+                            ${formatDate(
+                                application.deadline
+                            )}
+                        </p>
+                    `
+                    : ""
+            }
+
+
+            ${
+                application.follow_up_date
+                    ? `
+                        <p>
+                            <strong>
+                                Follow-up:
+                            </strong>
+
+                            ${formatDate(
+                                application.follow_up_date
+                            )}
+                        </p>
                     `
                     : ""
             }
@@ -148,18 +194,23 @@ function displayApplications(list = applications) {
             ${
                 application.job_url
                     ? `
-                    <p>
-                        <strong>Job Posting:</strong>
+                        <p>
 
-                        <a
-                            href="${escapeHTML(application.job_url)}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            View Job Posting
-                        </a>
+                            <strong>
+                                Job Posting:
+                            </strong>
 
-                    </p>
+                            <a
+                                href="${escapeHTML(
+                                    application.job_url
+                                )}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                View Job Posting
+                            </a>
+
+                        </p>
                     `
                     : ""
             }
@@ -168,15 +219,21 @@ function displayApplications(list = applications) {
             ${
                 application.notes
                     ? `
-                    <div class="application-notes">
+                        <div
+                            class="application-notes"
+                        >
 
-                        <strong>📝 Notes</strong>
+                            <strong>
+                                📝 Notes
+                            </strong>
 
-                        <p>
-                            ${escapeHTML(application.notes)}
-                        </p>
+                            <p>
+                                ${escapeHTML(
+                                    application.notes
+                                )}
+                            </p>
 
-                    </div>
+                        </div>
                     `
                     : ""
             }
@@ -204,26 +261,28 @@ function displayApplications(list = applications) {
         `;
 
 
-        // Edit button
-
         card
             .querySelector(".edit-button")
-            .addEventListener("click", () => {
+            .addEventListener(
+                "click",
+                () => {
+                    editApplication(
+                        application.id
+                    );
+                }
+            );
 
-                editApplication(application.id);
-
-            });
-
-
-        // Delete button
 
         card
             .querySelector(".delete-button")
-            .addEventListener("click", () => {
-
-                deleteApplication(application.id);
-
-            });
+            .addEventListener(
+                "click",
+                () => {
+                    deleteApplication(
+                        application.id
+                    );
+                }
+            );
 
 
         applicationList.appendChild(card);
@@ -234,30 +293,12 @@ function displayApplications(list = applications) {
 
 
 // ==========================================
-// GET PRIORITY EMOJI
-// ==========================================
-
-function getPriorityEmoji(priority) {
-
-    if (priority === "High") {
-        return "🔴";
-    }
-
-    if (priority === "Low") {
-        return "🟢";
-    }
-
-    return "🟡";
-}
-
-
-// ==========================================
 // ADD / EDIT APPLICATION
 // ==========================================
 
 applicationForm.addEventListener(
     "submit",
-    async function (event) {
+    async function(event) {
 
         event.preventDefault();
 
@@ -265,36 +306,57 @@ applicationForm.addEventListener(
         const application = {
 
             company:
-                document.getElementById("company")
+                document
+                    .getElementById("company")
                     .value
                     .trim(),
+
 
             role:
-                document.getElementById("role")
+                document
+                    .getElementById("role")
                     .value
                     .trim(),
+
 
             status:
-                document.getElementById("status")
+                document
+                    .getElementById("status")
                     .value,
+
 
             priority:
-                document.getElementById("priority")
+                document
+                    .getElementById("priority")
                     .value,
 
+
             job_url:
-                document.getElementById("job_url")
+                document
+                    .getElementById("job_url")
                     .value
                     .trim(),
 
+
             deadline:
-                document.getElementById("deadline")
+                document
+                    .getElementById("deadline")
                     .value,
 
+
             notes:
-                document.getElementById("notes")
+                document
+                    .getElementById("notes")
                     .value
-                    .trim()
+                    .trim(),
+
+
+            follow_up_date:
+                document
+                    .getElementById(
+                        "follow_up_date"
+                    )
+                    .value
 
         };
 
@@ -310,6 +372,7 @@ applicationForm.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -317,10 +380,6 @@ applicationForm.addEventListener(
 
             let response;
 
-
-            // ==================================
-            // EDIT
-            // ==================================
 
             if (editingId !== null) {
 
@@ -336,18 +395,13 @@ applicationForm.addEventListener(
                             },
 
                             body:
-                                JSON.stringify(application)
+                                JSON.stringify(
+                                    application
+                                )
                         }
                     );
 
-            }
-
-
-            // ==================================
-            // ADD
-            // ==================================
-
-            else {
+            } else {
 
                 response =
                     await fetch(
@@ -361,7 +415,9 @@ applicationForm.addEventListener(
                             },
 
                             body:
-                                JSON.stringify(application)
+                                JSON.stringify(
+                                    application
+                                )
                         }
                     );
 
@@ -376,18 +432,13 @@ applicationForm.addEventListener(
 
                 throw new Error(
                     data.message ||
-                    "Something went wrong."
+                    "Failed to save application."
                 );
 
             }
 
 
-            // Reset form
-
             resetForm();
-
-
-            // Reload applications
 
             await loadApplications();
 
@@ -395,6 +446,7 @@ applicationForm.addEventListener(
         } catch (error) {
 
             console.error(error);
+
 
             alert(
                 error.message ||
@@ -424,6 +476,7 @@ function editApplication(id) {
         alert("Application not found.");
 
         return;
+
     }
 
 
@@ -465,6 +518,11 @@ function editApplication(id) {
         application.notes || "";
 
 
+    document.getElementById("follow_up_date")
+        .value =
+        application.follow_up_date || "";
+
+
     formTitle.textContent =
         "Edit Application";
 
@@ -476,8 +534,6 @@ function editApplication(id) {
     cancelButton.style.display =
         "inline-block";
 
-
-    // Scroll to form
 
     applicationForm.scrollIntoView({
         behavior: "smooth",
@@ -493,7 +549,7 @@ function editApplication(id) {
 
 cancelButton.addEventListener(
     "click",
-    function () {
+    function() {
 
         resetForm();
 
@@ -525,18 +581,9 @@ function resetForm() {
         "none";
 
 
-    // Make sure Priority returns to Medium
-
-    const priority =
-        document.getElementById("priority");
-
-
-    if (priority) {
-
-        priority.value =
-            "Medium";
-
-    }
+    document.getElementById(
+        "priority"
+    ).value = "Medium";
 
 }
 
@@ -590,6 +637,7 @@ async function deleteApplication(id) {
 
         console.error(error);
 
+
         alert(
             error.message ||
             "Failed to delete application."
@@ -607,12 +655,9 @@ async function deleteApplication(id) {
 function searchApplications() {
 
     const searchInput =
-        document.getElementById("searchInput");
-
-
-    if (!searchInput) {
-        return;
-    }
+        document.getElementById(
+            "searchInput"
+        );
 
 
     const searchTerm =
@@ -626,33 +671,39 @@ function searchApplications() {
         displayApplications();
 
         return;
+
     }
 
 
     const filtered =
-        applications.filter(application => {
+        applications.filter(
+            application => {
 
-            return (
+                return (
 
-                application.company
-                    .toLowerCase()
-                    .includes(searchTerm)
+                    application.company
+                        .toLowerCase()
+                        .includes(searchTerm)
 
-                ||
+                    ||
 
-                application.role
-                    .toLowerCase()
-                    .includes(searchTerm)
+                    application.role
+                        .toLowerCase()
+                        .includes(searchTerm)
 
-                ||
+                    ||
 
-                (application.notes || "")
-                    .toLowerCase()
-                    .includes(searchTerm)
+                    (
+                        application.notes ||
+                        ""
+                    )
+                        .toLowerCase()
+                        .includes(searchTerm)
 
-            );
+                );
 
-        });
+            }
+        );
 
 
     displayApplications(filtered);
@@ -666,17 +717,14 @@ function searchApplications() {
 
 function filterApplications() {
 
-    const filter =
-        document.getElementById("statusFilter");
-
-
-    if (!filter) {
-        return;
-    }
+    const statusFilter =
+        document.getElementById(
+            "statusFilter"
+        );
 
 
     const selectedStatus =
-        filter.value;
+        statusFilter.value;
 
 
     if (
@@ -687,6 +735,7 @@ function filterApplications() {
         displayApplications();
 
         return;
+
     }
 
 
@@ -706,7 +755,13 @@ function filterApplications() {
 // ==========================================
 // DASHBOARD
 // ==========================================
+function updateElement(id, value) {
+    const element = document.getElementById(id);
 
+    if (element) {
+        element.textContent = value;
+    }
+}
 function updateDashboard() {
 
     const total =
@@ -774,21 +829,195 @@ function updateDashboard() {
 
 
 // ==========================================
-// UPDATE ELEMENT
+// FOLLOW-UPS
 // ==========================================
 
-function updateElement(id, value) {
+function displayFollowUps() {
 
-    const element =
-        document.getElementById(id);
+    if (!followUpList) {
+        return;
+    }
 
 
-    if (element) {
+    const withFollowUps =
+        applications
+            .filter(
+                app =>
+                    app.follow_up_date
+            )
+            .sort(
+                (a, b) =>
+                    a.follow_up_date
+                        .localeCompare(
+                            b.follow_up_date
+                        )
+            );
 
-        element.textContent =
-            value;
+
+    if (withFollowUps.length === 0) {
+
+        followUpList.innerHTML = `
+            <p class="empty-message">
+                No upcoming follow-ups.
+            </p>
+        `;
+
+        return;
 
     }
+
+
+    followUpList.innerHTML = "";
+
+
+    withFollowUps.forEach(
+        application => {
+
+            const days =
+                daysUntil(
+                    application.follow_up_date
+                );
+
+
+            let className =
+                "follow-up-future";
+
+
+            let message;
+
+
+            if (days < 0) {
+
+                className =
+                    "follow-up-today";
+
+
+                message =
+                    `${Math.abs(days)} day(s) overdue`;
+
+            } else if (days === 0) {
+
+                className =
+                    "follow-up-today";
+
+
+                message =
+                    "Follow up today";
+
+            } else if (days <= 3) {
+
+                className =
+                    "follow-up-soon";
+
+
+                message =
+                    `Follow up in ${days} day(s)`;
+
+            } else {
+
+                message =
+                    `Follow up in ${days} day(s)`;
+
+            }
+
+
+            const card =
+                document.createElement("div");
+
+
+            card.className =
+                `follow-up-card ${className}`;
+
+
+            card.innerHTML = `
+
+                <strong>
+                    ${escapeHTML(
+                        application.company
+                    )}
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        application.role
+                    )}
+                </span>
+
+                <br>
+
+                <small>
+                    ${formatDate(
+                        application.follow_up_date
+                    )}
+                    — ${message}
+                </small>
+
+            `;
+
+
+            followUpList.appendChild(card);
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// DAYS UNTIL DATE
+// ==========================================
+
+function daysUntil(dateString) {
+
+    const today =
+        new Date();
+
+
+    today.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+
+    const target =
+        new Date(
+            dateString +
+            "T00:00:00"
+        );
+
+
+    const difference =
+        target.getTime() -
+        today.getTime();
+
+
+    return Math.round(
+        difference /
+        (1000 * 60 * 60 * 24)
+    );
+
+}
+
+
+// ==========================================
+// PRIORITY EMOJI
+// ==========================================
+
+function getPriorityEmoji(priority) {
+
+    if (priority === "High") {
+        return "🔴";
+    }
+
+
+    if (priority === "Low") {
+        return "🟢";
+    }
+
+
+    return "🟡";
 
 }
 
@@ -806,7 +1035,8 @@ function formatDate(dateString) {
 
     const date =
         new Date(
-            dateString + "T00:00:00"
+            dateString +
+            "T00:00:00"
         );
 
 
@@ -828,8 +1058,10 @@ function formatDate(dateString) {
 
 function escapeHTML(value) {
 
-    if (value === null ||
-        value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
 
         return "";
 

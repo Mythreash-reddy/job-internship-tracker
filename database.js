@@ -9,7 +9,10 @@ db.prepare(`
         role TEXT NOT NULL,
         status TEXT NOT NULL,
         deadline TEXT,
-        notes TEXT
+        notes TEXT,
+        priority TEXT DEFAULT 'Medium',
+        job_url TEXT,
+        follow_up_date TEXT
     )
 `).run();
 

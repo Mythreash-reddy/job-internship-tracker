@@ -2,11 +2,17 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Job and Internship Application Tracker"
     >
 
     <title>Job & Internship Tracker</title>
@@ -15,414 +21,135 @@
         rel="stylesheet"
         href="style.css"
     >
+
 </head>
 
 
 <body>
 
-    <!-- =========================
+    <!-- =====================================
          HEADER
-    ========================== -->
+    ====================================== -->
 
-    <header class="top-header">
+    <header class="site-header">
 
         <div class="header-content">
 
-            <h1>
-                Job & Internship Tracker
-            </h1>
+            <div>
 
-            <p>
-                Manage your applications and stay on top of your career goals.
-            </p>
+                <h1>
+                    Job & Internship Tracker
+                </h1>
+
+                <p>
+                    Manage your entire job search in one place.
+                </p>
+
+            </div>
 
         </div>
 
     </header>
 
 
+    <!-- =====================================
+         MAIN
+    ====================================== -->
+
     <main>
 
 
-        <!-- =========================
+        <!-- =================================
              DASHBOARD
-        ========================== -->
+        ================================== -->
 
         <section class="dashboard">
 
-            <div class="section-heading">
-
-                <div>
-
-                    <h2>
-                        Dashboard
-                    </h2>
-
-                    <p>
-                        Overview of your applications
-                    </p>
-
-                </div>
-
-            </div>
+            <h2>
+                Dashboard
+            </h2>
 
 
-            <div class="stats">
-
+            <div class="stats-grid">
 
                 <div class="stat-card">
 
-                    <div class="stat-icon">
-                        📋
-                    </div>
+                    <span>
+                        Total
+                    </span>
 
-                    <div>
-
-                        <h3>
-                            Total
-                        </h3>
-
-                        <p id="totalCount">
-                            0
-                        </p>
-
-                    </div>
+                    <strong id="totalApplications">
+                        0
+                    </strong>
 
                 </div>
 
 
                 <div class="stat-card">
 
-                    <div class="stat-icon">
-                        📤
-                    </div>
+                    <span>
+                        Applied
+                    </span>
 
-                    <div>
-
-                        <h3>
-                            Applied
-                        </h3>
-
-                        <p id="appliedCount">
-                            0
-                        </p>
-
-                    </div>
+                    <strong id="appliedCount">
+                        0
+                    </strong>
 
                 </div>
 
 
                 <div class="stat-card">
 
-                    <div class="stat-icon">
-                        💬
-                    </div>
+                    <span>
+                        Interviews
+                    </span>
 
-                    <div>
-
-                        <h3>
-                            Interview
-                        </h3>
-
-                        <p id="interviewCount">
-                            0
-                        </p>
-
-                    </div>
+                    <strong id="interviewCount">
+                        0
+                    </strong>
 
                 </div>
 
 
                 <div class="stat-card">
 
-                    <div class="stat-icon">
-                        🎉
-                    </div>
+                    <span>
+                        Offers
+                    </span>
 
-                    <div>
-
-                        <h3>
-                            Offers
-                        </h3>
-
-                        <p id="offerCount">
-                            0
-                        </p>
-
-                    </div>
+                    <strong id="offerCount">
+                        0
+                    </strong>
 
                 </div>
 
 
                 <div class="stat-card">
 
-                    <div class="stat-icon">
-                        ❌
-                    </div>
+                    <span>
+                        Rejected
+                    </span>
 
-                    <div>
-
-                        <h3>
-                            Rejected
-                        </h3>
-
-                        <p id="rejectedCount">
-                            0
-                        </p>
-
-                    </div>
+                    <strong id="rejectedCount">
+                        0
+                    </strong>
 
                 </div>
-
 
             </div>
 
         </section>
 
 
-        <!-- =========================
-             ANALYTICS
-        ========================== -->
-
-        <section class="analytics">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <h2>
-                        Application Analytics
-                    </h2>
-
-                    <p>
-                        See how your applications are performing
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="analytics-grid">
-
-
-                <div class="analytics-card">
-
-                    <h3>
-                        Applications by Status
-                    </h3>
-
-
-                    <div class="chart-container">
-
-
-                        <div class="chart-row">
-
-                            <div class="chart-label">
-                                Applied
-                            </div>
-
-                            <div class="bar-background">
-
-                                <div
-                                    id="appliedBar"
-                                    class="bar applied-bar"
-                                ></div>
-
-                            </div>
-
-                            <span id="appliedPercentage">
-                                0%
-                            </span>
-
-                        </div>
-
-
-                        <div class="chart-row">
-
-                            <div class="chart-label">
-                                Interview
-                            </div>
-
-                            <div class="bar-background">
-
-                                <div
-                                    id="interviewBar"
-                                    class="bar interview-bar"
-                                ></div>
-
-                            </div>
-
-                            <span id="interviewPercentage">
-                                0%
-                            </span>
-
-                        </div>
-
-
-                        <div class="chart-row">
-
-                            <div class="chart-label">
-                                Offer
-                            </div>
-
-                            <div class="bar-background">
-
-                                <div
-                                    id="offerBar"
-                                    class="bar offer-bar"
-                                ></div>
-
-                            </div>
-
-                            <span id="offerPercentage">
-                                0%
-                            </span>
-
-                        </div>
-
-
-                        <div class="chart-row">
-
-                            <div class="chart-label">
-                                Rejected
-                            </div>
-
-                            <div class="bar-background">
-
-                                <div
-                                    id="rejectedBar"
-                                    class="bar rejected-bar"
-                                ></div>
-
-                            </div>
-
-                            <span id="rejectedPercentage">
-                                0%
-                            </span>
-
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-
-                <div class="analytics-card">
-
-                    <h3>
-                        Application Rates
-                    </h3>
-
-
-                    <div class="rate-list">
-
-
-                        <div class="rate-item">
-
-                            <span>
-                                Interview Rate
-                            </span>
-
-                            <strong id="interviewRate">
-                                0%
-                            </strong>
-
-                        </div>
-
-
-                        <div class="rate-item">
-
-                            <span>
-                                Offer Rate
-                            </span>
-
-                            <strong id="offerRate">
-                                0%
-                            </strong>
-
-                        </div>
-
-
-                        <div class="rate-item">
-
-                            <span>
-                                Rejection Rate
-                            </span>
-
-                            <strong id="rejectionRate">
-                                0%
-                            </strong>
-
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             UPCOMING DEADLINES
-        ========================== -->
-
-        <section class="deadlines">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <h2>
-                        Upcoming Deadlines
-                    </h2>
-
-                    <p>
-                        Applications that need your attention
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div id="deadlineList">
-
-                <p class="no-results">
-                    No upcoming deadlines.
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             ADD / EDIT APPLICATION
-        ========================== -->
+        <!-- =================================
+             APPLICATION FORM
+        ================================== -->
 
         <section class="application-form">
 
-            <div class="section-heading">
-
-                <div>
-
-                    <h2 id="formTitle">
-                        Add Application
-                    </h2>
-
-                    <p>
-                        Add a new job or internship application
-                    </p>
-
-                </div>
-
-            </div>
+            <h2 id="formTitle">
+                Add Application
+            </h2>
 
 
             <form id="applicationForm">
@@ -437,7 +164,7 @@
                     <input
                         type="text"
                         id="company"
-                        placeholder="e.g. Google"
+                        placeholder="Company name"
                         required
                     >
 
@@ -453,7 +180,7 @@
                     <input
                         type="text"
                         id="role"
-                        placeholder="e.g. Software Engineer Intern"
+                        placeholder="Software Engineer Intern"
                         required
                     >
 
@@ -491,8 +218,51 @@
 
                 <div class="form-group">
 
+                    <label for="priority">
+                        Priority
+                    </label>
+
+                    <select id="priority">
+
+                        <option value="High">
+                            🔴 High
+                        </option>
+
+                        <option
+                            value="Medium"
+                            selected
+                        >
+                            🟡 Medium
+                        </option>
+
+                        <option value="Low">
+                            🟢 Low
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="job_url">
+                        Job Posting URL
+                    </label>
+
+                    <input
+                        type="url"
+                        id="job_url"
+                        placeholder="https://example.com/job"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
                     <label for="deadline">
-                        Deadline
+                        Application Deadline
                     </label>
 
                     <input
@@ -503,11 +273,25 @@
                 </div>
 
 
-                <!-- =========================
-                     NOTES
-                ========================== -->
+                <div class="form-group">
 
-                <div class="form-group notes-group">
+                    <label for="follow_up_date">
+                        Follow-up Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="follow_up_date"
+                    >
+
+                    <small>
+                        When should you follow up with the company?
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
 
                     <label for="notes">
                         Notes
@@ -515,8 +299,8 @@
 
                     <textarea
                         id="notes"
-                        placeholder="Add interview details, recruiter information, preparation notes, etc."
-                        rows="5"
+                        rows="4"
+                        placeholder="Interview details, recruiter information, preparation notes..."
                     ></textarea>
 
                 </div>
@@ -544,57 +328,42 @@
 
                 </div>
 
-
             </form>
 
         </section>
 
 
-        <!-- =========================
-             APPLICATIONS
-        ========================== -->
+        <!-- =================================
+             SEARCH & FILTER
+        ================================== -->
 
-        <section class="applications">
+        <section class="search-section">
 
-            <div class="section-heading">
+            <div class="search-box">
 
-                <div>
+                <label for="searchInput">
+                    Search Applications
+                </label>
 
-                    <h2>
-                        My Applications
-                    </h2>
-
-                    <p>
-                        Search and manage your applications
-                    </p>
-
-                </div>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search by company, role or notes..."
+                >
 
             </div>
 
 
-            <div class="filters">
+            <div class="filter-box">
 
+                <label for="statusFilter">
+                    Filter by Status
+                </label>
 
-                <div class="search-box">
-
-                    <span>
-                        🔍
-                    </span>
-
-                    <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="Search by company or role..."
-                    >
-
-                </div>
-
-
-                <select id="filterStatus">
+                <select id="statusFilter">
 
                     <option value="All">
-                        All Statuses
+                        All
                     </option>
 
                     <option value="Applied">
@@ -615,59 +384,59 @@
 
                 </select>
 
-
             </div>
-
-            <div class="form-group">
-
-    <label for="priority">
-        Priority
-    </label>
-
-    <select id="priority">
-
-        <option value="High">
-            🔴 High
-        </option>
-
-        <option value="Medium" selected>
-            🟡 Medium
-        </option>
-
-        <option value="Low">
-            🟢 Low
-        </option>
-
-    </select>
-
-</div>
-
-<div class="form-group">
-
-    <label for="job_url">
-        Job Posting URL
-    </label>
-
-    <input
-        type="url"
-        id="job_url"
-        placeholder="https://example.com/job"
-    >
-
-</div>
-
-            <div id="applicationList">
-
-                <!-- Applications appear here -->
-
-            </div>
-
 
         </section>
 
 
+        <!-- =================================
+             FOLLOW-UP SECTION
+        ================================== -->
+
+        <section class="follow-up-section">
+
+            <h2>
+                🔔 Upcoming Follow-ups
+            </h2>
+
+            <div id="followUpList">
+
+                <p class="empty-message">
+                    No upcoming follow-ups.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             APPLICATIONS
+        ================================== -->
+
+        <section class="applications">
+
+            <h2>
+                My Applications
+            </h2>
+
+
+            <div id="applicationList">
+
+                <p class="no-applications">
+                    Loading applications...
+                </p>
+
+            </div>
+
+        </section>
+
     </main>
 
+
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
 
     <footer>
 

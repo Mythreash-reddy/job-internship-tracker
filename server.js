@@ -16,7 +16,7 @@ app.use(express.static("public"));
 
 
 // ==========================================
-// GET - GET ALL APPLICATIONS
+// GET ALL APPLICATIONS
 // ==========================================
 
 app.get("/api/applications", (req, res) => {
@@ -47,7 +47,7 @@ app.get("/api/applications", (req, res) => {
 
 
 // ==========================================
-// POST - ADD APPLICATION
+// ADD APPLICATION
 // ==========================================
 
 app.post("/api/applications", (req, res) => {
@@ -59,9 +59,10 @@ app.post("/api/applications", (req, res) => {
             role,
             status,
             priority,
+            job_url,
             deadline,
             notes,
-            job_url
+            follow_up_date
         } = req.body;
 
 
@@ -87,20 +88,22 @@ app.post("/api/applications", (req, res) => {
                     role,
                     status,
                     priority,
+                    job_url,
                     deadline,
                     notes,
-                    job_url
+                    follow_up_date
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             `)
             .run(
                 company,
                 role,
                 status,
                 selectedPriority,
+                job_url || null,
                 deadline || null,
                 notes || null,
-                job_url || null
+                follow_up_date || null
             );
 
 
@@ -115,14 +118,12 @@ app.post("/api/applications", (req, res) => {
 
         res.status(201).json(application);
 
-
     } catch (error) {
 
         console.error(error);
 
         res.status(500).json({
-            message:
-                "Failed to add application."
+            message: "Failed to add application."
         });
 
     }
@@ -131,7 +132,7 @@ app.post("/api/applications", (req, res) => {
 
 
 // ==========================================
-// PUT - EDIT APPLICATION
+// EDIT APPLICATION
 // ==========================================
 
 app.put("/api/applications/:id", (req, res) => {
@@ -140,15 +141,15 @@ app.put("/api/applications/:id", (req, res) => {
 
         const { id } = req.params;
 
-
         const {
             company,
             role,
             status,
             priority,
+            job_url,
             deadline,
             notes,
-            job_url
+            follow_up_date
         } = req.body;
 
 
@@ -175,9 +176,10 @@ app.put("/api/applications/:id", (req, res) => {
                     role = ?,
                     status = ?,
                     priority = ?,
+                    job_url = ?,
                     deadline = ?,
                     notes = ?,
-                    job_url = ?
+                    follow_up_date = ?
 
                 WHERE id = ?
             `)
@@ -186,9 +188,10 @@ app.put("/api/applications/:id", (req, res) => {
                 role,
                 status,
                 selectedPriority,
+                job_url || null,
                 deadline || null,
                 notes || null,
-                job_url || null,
+                follow_up_date || null,
                 id
             );
 
@@ -214,7 +217,6 @@ app.put("/api/applications/:id", (req, res) => {
 
         res.json(application);
 
-
     } catch (error) {
 
         console.error(error);
@@ -230,7 +232,7 @@ app.put("/api/applications/:id", (req, res) => {
 
 
 // ==========================================
-// DELETE - DELETE APPLICATION
+// DELETE APPLICATION
 // ==========================================
 
 app.delete("/api/applications/:id", (req, res) => {
@@ -262,7 +264,6 @@ app.delete("/api/applications/:id", (req, res) => {
             message:
                 "Application deleted successfully."
         });
-
 
     } catch (error) {
 
