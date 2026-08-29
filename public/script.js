@@ -53,13 +53,15 @@ async function loadApplications() {
         applications =
             await response.json();
 
+displayApplications();
 
-        displayApplications();
+updateDashboard();
 
-        updateDashboard();
+updateAnalytics();
 
-        displayFollowUps();
+displayFollowUps();
 
+updateActionCenter();
 
     } catch (error) {
 
@@ -681,13 +683,19 @@ function searchApplications() {
 
                 return (
 
-                    application.company
+                    (
+                        application.company ||
+                        ""
+                    )
                         .toLowerCase()
                         .includes(searchTerm)
 
                     ||
 
-                    application.role
+                    (
+                        application.role ||
+                        ""
+                    )
                         .toLowerCase()
                         .includes(searchTerm)
 
@@ -755,13 +763,23 @@ function filterApplications() {
 // ==========================================
 // DASHBOARD
 // ==========================================
+
 function updateElement(id, value) {
-    const element = document.getElementById(id);
+
+    const element =
+        document.getElementById(id);
+
 
     if (element) {
-        element.textContent = value;
+
+        element.textContent =
+            value;
+
     }
+
 }
+
+
 function updateDashboard() {
 
     const total =
@@ -824,6 +842,197 @@ function updateDashboard() {
         "rejectedCount",
         rejected
     );
+
+}
+
+
+// ==========================================
+// ANALYTICS
+// ==========================================
+
+function calculatePercentage(
+    count,
+    total
+) {
+
+    if (total === 0) {
+        return 0;
+    }
+
+
+    return Math.round(
+        (count / total) * 100
+    );
+
+}
+
+
+function updateAnalytics() {
+
+    const total =
+        applications.length;
+
+
+    const applied =
+        applications.filter(
+            app =>
+                app.status === "Applied"
+        ).length;
+
+
+    const interviews =
+        applications.filter(
+            app =>
+                app.status === "Interview"
+        ).length;
+
+
+    const offers =
+        applications.filter(
+            app =>
+                app.status === "Offer"
+        ).length;
+
+
+    const rejected =
+        applications.filter(
+            app =>
+                app.status === "Rejected"
+        ).length;
+
+
+    const interviewRate =
+        calculatePercentage(
+            interviews,
+            total
+        );
+
+
+    const offerRate =
+        calculatePercentage(
+            offers,
+            total
+        );
+
+
+    const rejectionRate =
+        calculatePercentage(
+            rejected,
+            total
+        );
+
+
+    updateElement(
+        "interviewRate",
+        `${interviewRate}%`
+    );
+
+
+    updateElement(
+        "offerRate",
+        `${offerRate}%`
+    );
+
+
+    updateElement(
+        "rejectionRate",
+        `${rejectionRate}%`
+    );
+
+
+    const appliedPercentage =
+        calculatePercentage(
+            applied,
+            total
+        );
+
+
+    const interviewPercentage =
+        calculatePercentage(
+            interviews,
+            total
+        );
+
+
+    const offerPercentage =
+        calculatePercentage(
+            offers,
+            total
+        );
+
+
+    const rejectedPercentage =
+        calculatePercentage(
+            rejected,
+            total
+        );
+
+
+    updateElement(
+        "appliedPercentage",
+        `${appliedPercentage}%`
+    );
+
+
+    updateElement(
+        "interviewPercentage",
+        `${interviewPercentage}%`
+    );
+
+
+    updateElement(
+        "offerPercentage",
+        `${offerPercentage}%`
+    );
+
+
+    updateElement(
+        "rejectedPercentage",
+        `${rejectedPercentage}%`
+    );
+
+
+    updateBar(
+        "appliedBar",
+        appliedPercentage
+    );
+
+
+    updateBar(
+        "interviewBar",
+        interviewPercentage
+    );
+
+
+    updateBar(
+        "offerBar",
+        offerPercentage
+    );
+
+
+    updateBar(
+        "rejectedBar",
+        rejectedPercentage
+    );
+
+}
+
+
+function updateBar(
+    id,
+    percentage
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.style.width =
+            `${percentage}%`;
+
+    }
 
 }
 
@@ -1125,4 +1334,188 @@ if (statusFilter) {
 // INITIAL LOAD
 // ==========================================
 
+// ==========================================
+// SMART ACTION CENTER
+// ==========================================
+
+function updateActionCenter() {
+
+    const actionCenter =
+        document.getElementById("actionCenter");
+
+    if (!actionCenter) {
+        return;
+    }
+
+    const actions = [];
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+
+    applications.forEach(application => {
+
+        // ------------------------------
+        // FOLLOW-UP ACTIONS
+        // ------------------------------
+
+        if (application.follow_up_date) {
+
+            const days =
+                daysUntil(
+                    application.follow_up_date
+                );
+
+
+            if (days < 0) {
+
+                actions.push({
+                    type: "overdue",
+                    title: "🔴 Overdue Follow-up",
+                    text:
+                        `${application.company} — ${application.role}`,
+                    date:
+                        `${Math.abs(days)} day(s) overdue`
+                });
+
+            } else if (days === 0) {
+
+                actions.push({
+                    type: "today",
+                    title: "🔔 Follow-up Today",
+                    text:
+                        `${application.company} — ${application.role}`,
+                    date:
+                        "Follow up with this company today"
+                });
+
+            } else if (days <= 3) {
+
+                actions.push({
+                    type: "today",
+                    title: "🔔 Follow-up Soon",
+                    text:
+                        `${application.company} — ${application.role}`,
+                    date:
+                        `Follow up in ${days} day(s)`
+                });
+
+            }
+
+        }
+
+
+        // ------------------------------
+        // DEADLINE ACTIONS
+        // ------------------------------
+
+        if (application.deadline) {
+
+            const deadlineDays =
+                daysUntil(
+                    application.deadline
+                );
+
+
+            if (
+                deadlineDays >= 0 &&
+                deadlineDays <= 7 &&
+                application.status !== "Rejected"
+            ) {
+
+                actions.push({
+                    type: "deadline",
+                    title: "⏰ Deadline Approaching",
+                    text:
+                        `${application.company} — ${application.role}`,
+                    date:
+                        deadlineDays === 0
+                            ? "Deadline is today"
+                            : `Deadline in ${deadlineDays} day(s)`
+                });
+
+            }
+
+        }
+
+
+        // ------------------------------
+        // HIGH PRIORITY
+        // ------------------------------
+
+        if (
+            application.priority === "High" &&
+            application.status !== "Rejected" &&
+            application.status !== "Offer"
+        ) {
+
+            actions.push({
+                type: "high",
+                title: "⭐ High Priority",
+                text:
+                    `${application.company} — ${application.role}`,
+                date:
+                    `Current status: ${application.status}`
+            });
+
+        }
+
+    });
+
+
+    // ------------------------------
+    // NO ACTIONS
+    // ------------------------------
+
+    if (actions.length === 0) {
+
+        actionCenter.innerHTML = `
+            <div class="no-actions">
+                ✅ No urgent actions right now.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    // ------------------------------
+    // DISPLAY ACTIONS
+    // ------------------------------
+
+    actionCenter.innerHTML = `
+
+        <div class="action-list">
+
+            ${actions.map(action => `
+
+                <div
+                    class="action-card action-${action.type}"
+                >
+
+                    <strong>
+                        ${action.title}
+                    </strong>
+
+                    <span>
+                        ${escapeHTML(action.text)}
+                    </span>
+
+                    <br>
+
+                    <span>
+                        ${escapeHTML(action.date)}
+                    </span>
+
+                </div>
+
+            `).join("")}
+
+        </div>
+
+    `;
+
+}
 loadApplications();

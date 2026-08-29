@@ -86,9 +86,7 @@ section {
 
 .stats-grid {
     display: grid;
-    grid-template-columns:
-        repeat(5, 1fr);
-
+    grid-template-columns: repeat(5, 1fr);
     gap: 15px;
 }
 
@@ -97,6 +95,7 @@ section {
     background: white;
     padding: 20px;
     border-radius: 12px;
+
     box-shadow:
         0 2px 8px rgba(0, 0, 0, 0.08);
 
@@ -114,6 +113,108 @@ section {
 
 .stat-card strong {
     font-size: 30px;
+}
+
+
+/* ==========================================
+   ANALYTICS
+========================================== */
+
+.analytics-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+.analytics-section h2 {
+    margin-bottom: 20px;
+}
+
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+
+.analytics-card {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+
+.analytics-card span {
+    display: block;
+    color: #6b7280;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+
+.analytics-card strong {
+    display: block;
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+
+.analytics-card small {
+    color: #6b7280;
+}
+
+
+.status-breakdown {
+    margin-top: 25px;
+}
+
+
+.status-breakdown h3 {
+    margin-bottom: 18px;
+}
+
+
+.status-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 50px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+
+.status-row > span {
+    font-weight: bold;
+}
+
+
+.status-bar {
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+
+.status-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #2563eb;
+    border-radius: 20px;
+
+    transition:
+        width 0.3s ease;
+}
+
+
+.status-row strong {
+    text-align: right;
 }
 
 
@@ -493,8 +594,12 @@ footer {
 @media (max-width: 800px) {
 
     .stats-grid {
-        grid-template-columns:
-            repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
     }
 
 
@@ -519,6 +624,17 @@ footer {
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .status-row {
+        grid-template-columns: 80px 1fr 45px;
+        gap: 8px;
     }
 
 
@@ -547,4 +663,71 @@ footer {
         width: 100%;
     }
 
+}
+/* ==========================================
+   SMART ACTION CENTER
+========================================== */
+
+.action-center {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.action-center h2 {
+    margin-bottom: 20px;
+}
+
+.action-list {
+    display: grid;
+    gap: 12px;
+}
+
+.action-card {
+    padding: 15px;
+
+    background: #f8fafc;
+
+    border-radius: 8px;
+
+    border-left: 5px solid #2563eb;
+}
+
+.action-card strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.action-card span {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.action-overdue {
+    border-left-color: #dc2626;
+}
+
+.action-today {
+    border-left-color: #f59e0b;
+}
+
+.action-deadline {
+    border-left-color: #7c3aed;
+}
+
+.action-high {
+    border-left-color: #2563eb;
+}
+
+.no-actions {
+    padding: 15px;
+
+    background: #f0fdf4;
+
+    border-radius: 8px;
+
+    color: #166534;
 }
