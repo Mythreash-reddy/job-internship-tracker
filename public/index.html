@@ -24,21 +24,20 @@
 
 </head>
 
+
 <body>
 
-    <!-- =====================================
-         HEADER
-    ====================================== -->
+    <!-- ==========================================
+         AUTHENTICATION
+    =========================================== -->
 
-    <header class="site-header">
+    <section id="authSection" class="auth-section">
 
-        <div class="header-content">
+        <div class="auth-card">
 
-            <div>
+            <div class="auth-header">
 
-                <h1>
-                    Job & Internship Tracker
-                </h1>
+                <h1>Job & Internship Tracker</h1>
 
                 <p>
                     Manage your entire job search in one place.
@@ -46,335 +45,601 @@
 
             </div>
 
+
+            <!-- LOGIN -->
+
+            <div id="loginView">
+
+                <h2>Welcome Back</h2>
+
+                <p class="auth-subtitle">
+                    Login to continue tracking your applications.
+                </p>
+
+
+                <form id="loginForm">
+
+                    <div class="form-group">
+
+                        <label for="loginEmail">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="loginEmail"
+                            placeholder="you@example.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="loginPassword">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="loginPassword"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="primary-button auth-button"
+                    >
+                        Login
+                    </button>
+
+                </form>
+
+
+                <p
+                    id="loginMessage"
+                    class="auth-message"
+                ></p>
+
+
+                <p class="auth-switch">
+
+                    Don't have an account?
+
+                    <button
+                        type="button"
+                        id="showRegisterButton"
+                        class="link-button"
+                    >
+                        Create Account
+                    </button>
+
+                </p>
+
+            </div>
+
+
+            <!-- REGISTER -->
+
+            <div
+                id="registerView"
+                style="display: none;"
+            >
+
+                <h2>Create Account</h2>
+
+                <p class="auth-subtitle">
+                    Start organizing your job search.
+                </p>
+
+
+                <form id="registerForm">
+
+                    <div class="form-group">
+
+                        <label for="registerName">
+                            Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="registerName"
+                            placeholder="Your name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="registerEmail">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="registerEmail"
+                            placeholder="you@example.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="registerPassword">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="registerPassword"
+                            placeholder="Minimum 6 characters"
+                            minlength="6"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="primary-button auth-button"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+
+                <p
+                    id="registerMessage"
+                    class="auth-message"
+                ></p>
+
+
+                <p class="auth-switch">
+
+                    Already have an account?
+
+                    <button
+                        type="button"
+                        id="showLoginButton"
+                        class="link-button"
+                    >
+                        Login
+                    </button>
+
+                </p>
+
+            </div>
+
         </div>
 
-    </header>
+    </section>
 
 
-    <!-- =====================================
-         MAIN
-    ====================================== -->
+    <!-- ==========================================
+         APPLICATION
+    =========================================== -->
 
-    <main>
+    <div
+        id="appSection"
+        style="display: none;"
+    >
 
+        <!-- HEADER -->
 
-        <!-- =================================
-             DASHBOARD
-        ================================== -->
+        <header class="site-header">
 
-        <section class="dashboard">
+            <div class="header-content">
 
-            <h2>
-                Dashboard
-            </h2>
+                <div>
 
+                    <h1>
+                        Job & Internship Tracker
+                    </h1>
 
-            <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <span>
-                        Total
-                    </span>
-
-                    <strong id="totalApplications">
-                        0
-                    </strong>
+                    <p>
+                        Manage your entire job search in one place.
+                    </p>
 
                 </div>
 
 
-                <div class="stat-card">
+                <div class="user-area">
 
-                    <span>
-                        Applied
+                    <span id="welcomeUser">
+                        Welcome
                     </span>
 
-                    <strong id="appliedCount">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span>
-                        Interviews
-                    </span>
-
-                    <strong id="interviewCount">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span>
-                        Offers
-                    </span>
-
-                    <strong id="offerCount">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span>
-                        Rejected
-                    </span>
-
-                    <strong id="rejectedCount">
-                        0
-                    </strong>
+                    <button
+                        id="logoutButton"
+                        class="logout-button"
+                    >
+                        Logout
+                    </button>
 
                 </div>
 
             </div>
 
-        </section>
-
-        <!-- =================================
-     SMART ACTION CENTER
-================================== -->
-
-<section class="action-center">
-
-    <h2>🎯 Smart Action Center</h2>
-
-    <div id="actionCenter">
-
-        <p class="empty-message">
-            Loading actions...
-        </p>
-
-    </div>
-
-</section>
+        </header>
 
 
-        <!-- =================================
-             ANALYTICS
-        ================================== -->
+        <main>
 
-        <section class="analytics-section">
+            <!-- ==================================
+                 DASHBOARD
+            =================================== -->
 
-            <h2>
-                📈 Application Analytics
-            </h2>
+            <section class="dashboard">
 
-            <div class="analytics-grid">
-
-                <div class="analytics-card">
-
-                    <span>
-                        Interview Rate
-                    </span>
-
-                    <strong id="interviewRate">
-                        0%
-                    </strong>
-
-                    <small>
-                        Applications that reached interview
-                    </small>
-
-                </div>
+                <h2>Dashboard</h2>
 
 
-                <div class="analytics-card">
+                <div class="stats-grid">
 
-                    <span>
-                        Offer Rate
-                    </span>
+                    <div class="stat-card">
 
-                    <strong id="offerRate">
-                        0%
-                    </strong>
+                        <span>Total Applications</span>
 
-                    <small>
-                        Applications that resulted in an offer
-                    </small>
-
-                </div>
-
-
-                <div class="analytics-card">
-
-                    <span>
-                        Rejection Rate
-                    </span>
-
-                    <strong id="rejectionRate">
-                        0%
-                    </strong>
-
-                    <small>
-                        Applications that were rejected
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <div class="status-breakdown">
-
-                <h3>
-                    Application Status Breakdown
-                </h3>
-
-
-                <div class="status-row">
-
-                    <span>
-                        Applied
-                    </span>
-
-                    <div class="status-bar">
-
-                        <div
-                            id="appliedBar"
-                            class="status-bar-fill"
-                        ></div>
+                        <strong id="totalApplications">
+                            0
+                        </strong>
 
                     </div>
 
-                    <strong id="appliedPercentage">
-                        0%
-                    </strong>
 
-                </div>
+                    <div class="stat-card">
 
+                        <span>Applied</span>
 
-                <div class="status-row">
-
-                    <span>
-                        Interview
-                    </span>
-
-                    <div class="status-bar">
-
-                        <div
-                            id="interviewBar"
-                            class="status-bar-fill"
-                        ></div>
+                        <strong id="appliedCount">
+                            0
+                        </strong>
 
                     </div>
 
-                    <strong id="interviewPercentage">
-                        0%
-                    </strong>
 
-                </div>
+                    <div class="stat-card">
 
+                        <span>Interviews</span>
 
-                <div class="status-row">
-
-                    <span>
-                        Offer
-                    </span>
-
-                    <div class="status-bar">
-
-                        <div
-                            id="offerBar"
-                            class="status-bar-fill"
-                        ></div>
+                        <strong id="interviewCount">
+                            0
+                        </strong>
 
                     </div>
 
-                    <strong id="offerPercentage">
-                        0%
-                    </strong>
 
-                </div>
+                    <div class="stat-card">
 
+                        <span>Offers</span>
 
-                <div class="status-row">
-
-                    <span>
-                        Rejected
-                    </span>
-
-                    <div class="status-bar">
-
-                        <div
-                            id="rejectedBar"
-                            class="status-bar-fill"
-                        ></div>
+                        <strong id="offerCount">
+                            0
+                        </strong>
 
                     </div>
 
-                    <strong id="rejectedPercentage">
-                        0%
-                    </strong>
+
+                    <div class="stat-card">
+
+                        <span>Rejected</span>
+
+                        <strong id="rejectedCount">
+                            0
+                        </strong>
+
+                    </div>
 
                 </div>
 
-            </div>
-
-        </section>
+            </section>
 
 
-        <!-- =================================
-             APPLICATION FORM
-        ================================== -->
+            <!-- ==================================
+                 ANALYTICS
+            =================================== -->
 
-        <section class="application-form">
+            <section class="analytics-section">
 
-            <h2 id="formTitle">
-                Add Application
-            </h2>
+                <h2>Application Analytics</h2>
 
 
-            <form id="applicationForm">
+                <div class="analytics-grid">
+
+                    <div class="analytics-card">
+
+                        <span>Interview Rate</span>
+
+                        <strong id="interviewRate">
+                            0%
+                        </strong>
+
+                    </div>
 
 
-                <div class="form-group">
+                    <div class="analytics-card">
 
-                    <label for="company">
-                        Company
+                        <span>Offer Rate</span>
+
+                        <strong id="offerRate">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="analytics-card">
+
+                        <span>Rejection Rate</span>
+
+                        <strong id="rejectionRate">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="analytics-card">
+
+                        <span>Active Applications</span>
+
+                        <strong id="activeCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+                 APPLICATION FORM
+            =================================== -->
+
+            <section class="application-form">
+
+                <h2 id="formTitle">
+                    Add Application
+                </h2>
+
+
+                <form id="applicationForm">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="company">
+                                Company
+                            </label>
+
+                            <input
+                                type="text"
+                                id="company"
+                                placeholder="Company name"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="role">
+                                Job / Internship Role
+                            </label>
+
+                            <input
+                                type="text"
+                                id="role"
+                                placeholder="Software Engineer"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="status">
+                                Status
+                            </label>
+
+                            <select id="status">
+
+                                <option value="Applied">
+                                    Applied
+                                </option>
+
+                                <option value="Interview">
+                                    Interview
+                                </option>
+
+                                <option value="Offer">
+                                    Offer
+                                </option>
+
+                                <option value="Rejected">
+                                    Rejected
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="priority">
+                                Priority
+                            </label>
+
+                            <select id="priority">
+
+                                <option value="High">
+                                    🔴 High
+                                </option>
+
+                                <option
+                                    value="Medium"
+                                    selected
+                                >
+                                    🟡 Medium
+                                </option>
+
+                                <option value="Low">
+                                    🟢 Low
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="job_url">
+                            Job Posting URL
+                        </label>
+
+                        <input
+                            type="url"
+                            id="job_url"
+                            placeholder="https://example.com/job"
+                        >
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="deadline">
+                                Application Deadline
+                            </label>
+
+                            <input
+                                type="date"
+                                id="deadline"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="follow_up_date">
+                                Follow-up Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="follow_up_date"
+                            >
+
+                            <small>
+                                When should you follow up?
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="notes">
+                            Notes
+                        </label>
+
+                        <textarea
+                            id="notes"
+                            rows="4"
+                            placeholder="Interview details, recruiter information, preparation notes..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-buttons">
+
+                        <button
+                            type="submit"
+                            id="submitButton"
+                            class="primary-button"
+                        >
+                            Add Application
+                        </button>
+
+
+                        <button
+                            type="button"
+                            id="cancelButton"
+                            class="secondary-button"
+                            style="display: none;"
+                        >
+                            Cancel Edit
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- ==================================
+                 SEARCH & FILTER
+            =================================== -->
+
+            <section class="search-section">
+
+                <div class="search-box">
+
+                    <label for="searchInput">
+                        Search Applications
                     </label>
 
                     <input
                         type="text"
-                        id="company"
-                        placeholder="Company name"
-                        required
+                        id="searchInput"
+                        placeholder="Search by company, role or notes..."
                     >
 
                 </div>
 
 
-                <div class="form-group">
+                <div class="filter-box">
 
-                    <label for="role">
-                        Job / Internship Role
+                    <label for="statusFilter">
+                        Filter by Status
                     </label>
 
-                    <input
-                        type="text"
-                        id="role"
-                        placeholder="Software Engineer Intern"
-                        required
-                    >
+                    <select id="statusFilter">
 
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="status">
-                        Status
-                    </label>
-
-                    <select id="status">
+                        <option value="All">
+                            All
+                        </option>
 
                         <option value="Applied">
                             Applied
@@ -397,235 +662,143 @@
                 </div>
 
 
-                <div class="form-group">
+                <div class="filter-box">
 
-                    <label for="priority">
-                        Priority
+                    <label for="priorityFilter">
+                        Filter by Priority
                     </label>
 
-                    <select id="priority">
+                    <select id="priorityFilter">
 
-                        <option value="High">
-                            🔴 High
+                        <option value="All">
+                            All
                         </option>
 
-                        <option
-                            value="Medium"
-                            selected
-                        >
-                            🟡 Medium
+                        <option value="High">
+                            High
+                        </option>
+
+                        <option value="Medium">
+                            Medium
                         </option>
 
                         <option value="Low">
-                            🟢 Low
+                            Low
                         </option>
 
                     </select>
 
                 </div>
 
+            </section>
 
-                <div class="form-group">
 
-                    <label for="job_url">
-                        Job Posting URL
-                    </label>
+            <!-- ==================================
+                 SMART ACTION CENTER
+            =================================== -->
 
-                    <input
-                        type="url"
-                        id="job_url"
-                        placeholder="https://example.com/job"
-                    >
+            <section class="action-center">
+
+                <h2>
+                    Smart Action Center
+                </h2>
+
+                <div id="actionCenterList">
+
+                    <p class="empty-message">
+                        No urgent actions right now.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+                 DEADLINES
+            =================================== -->
+
+            <section class="deadline-section">
+
+                <h2>
+                    📅 Deadlines
+                </h2>
+
+                <div id="deadlineList">
+
+                    <p class="empty-message">
+                        No upcoming deadlines.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+                 FOLLOW-UPS
+            =================================== -->
+
+            <section class="follow-up-section">
+
+                <h2>
+                    🔔 Upcoming Follow-ups
+                </h2>
+
+                <div id="followUpList">
+
+                    <p class="empty-message">
+                        No upcoming follow-ups.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+                 APPLICATIONS
+            =================================== -->
+
+            <section class="applications">
+
+                <div class="section-heading">
+
+                    <h2>
+                        My Applications
+                    </h2>
+
+                    <span id="applicationCountLabel">
+                        0 applications
+                    </span>
 
                 </div>
 
 
-                <div class="form-group">
+                <div id="applicationList">
 
-                    <label for="deadline">
-                        Application Deadline
-                    </label>
-
-                    <input
-                        type="date"
-                        id="deadline"
-                    >
+                    <p class="no-applications">
+                        Loading applications...
+                    </p>
 
                 </div>
 
+            </section>
 
-                <div class="form-group">
-
-                    <label for="follow_up_date">
-                        Follow-up Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="follow_up_date"
-                    >
-
-                    <small>
-                        When should you follow up with the company?
-                    </small>
-
-                </div>
+        </main>
 
 
-                <div class="form-group">
+        <!-- FOOTER -->
 
-                    <label for="notes">
-                        Notes
-                    </label>
+        <footer>
 
-                    <textarea
-                        id="notes"
-                        rows="4"
-                        placeholder="Interview details, recruiter information, preparation notes..."
-                    ></textarea>
+            <p>
+                Job & Internship Tracker
+            </p>
 
-                </div>
+        </footer>
 
-
-                <div class="form-buttons">
-
-                    <button
-                        type="submit"
-                        id="submitButton"
-                        class="primary-button"
-                    >
-                        Add Application
-                    </button>
-
-
-                    <button
-                        type="button"
-                        id="cancelButton"
-                        class="secondary-button"
-                        style="display: none;"
-                    >
-                        Cancel Edit
-                    </button>
-
-                </div>
-
-            </form>
-
-        </section>
-
-
-        <!-- =================================
-             SEARCH & FILTER
-        ================================== -->
-
-        <section class="search-section">
-
-            <div class="search-box">
-
-                <label for="searchInput">
-                    Search Applications
-                </label>
-
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search by company, role or notes..."
-                >
-
-            </div>
-
-
-            <div class="filter-box">
-
-                <label for="statusFilter">
-                    Filter by Status
-                </label>
-
-                <select id="statusFilter">
-
-                    <option value="All">
-                        All
-                    </option>
-
-                    <option value="Applied">
-                        Applied
-                    </option>
-
-                    <option value="Interview">
-                        Interview
-                    </option>
-
-                    <option value="Offer">
-                        Offer
-                    </option>
-
-                    <option value="Rejected">
-                        Rejected
-                    </option>
-
-                </select>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================
-             FOLLOW-UP SECTION
-        ================================== -->
-
-        <section class="follow-up-section">
-
-            <h2>
-                🔔 Upcoming Follow-ups
-            </h2>
-
-            <div id="followUpList">
-
-                <p class="empty-message">
-                    No upcoming follow-ups.
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================
-             APPLICATIONS
-        ================================== -->
-
-        <section class="applications">
-
-            <h2>
-                My Applications
-            </h2>
-
-
-            <div id="applicationList">
-
-                <p class="no-applications">
-                    Loading applications...
-                </p>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- =====================================
-         FOOTER
-    ====================================== -->
-
-    <footer>
-
-        <p>
-            Job & Internship Tracker
-        </p>
-
-    </footer>
+    </div>
 
 
     <script src="script.js"></script>
