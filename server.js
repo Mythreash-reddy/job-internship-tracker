@@ -5,6 +5,7 @@
 // 1. Register / Login / Logout
 // 2. Add, view, edit, and delete job applications
 // Each user only sees their own applications.
+require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
@@ -13,7 +14,7 @@ const bcrypt = require("bcryptjs");
 const db = require("./database");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // ==========================================
 // MIDDLEWARE (runs before every request)
@@ -33,7 +34,7 @@ app.use(express.static("public"));
 
 // Keep track of who is logged in using a session cookie
 app.use(session({
-    secret: "job-tracker-secret-change-this-later",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -340,7 +341,6 @@ app.delete("/api/applications/:id", requireLogin, (req, res) => {
 // ==========================================
 // START THE SERVER
 // ==========================================
-
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });

@@ -853,5 +853,112 @@ footer {
     .card-buttons button {
         width: 100%;
     }
+/* ==========================================
+   REMINDERS
+========================================== */
 
+.reminders-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.reminders-section h2 {
+    margin-bottom: 18px;
+}
+
+
+#remindersList {
+    display: grid;
+    gap: 12px;
+}
+
+
+.reminder-card {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 15px;
+
+    padding: 16px;
+
+    background: #f8fafc;
+
+    border-radius: 10px;
+
+    border-left: 5px solid #f59e0b;
+}
+
+
+.reminder-icon {
+    font-size: 22px;
+}
+
+
+.reminder-content {
+    flex: 1;
+}
+
+
+.reminder-content strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+
+.reminder-content span {
+    display: block;
+
+    color: #6b7280;
+
+    margin-bottom: 8px;
+}
+
+
+.reminder-content p {
+    margin-bottom: 6px;
+}
+
+
+.reminder-content small {
+    color: #6b7280;
+}
+
+
+/* OVERDUE */
+
+.reminder-card.deadline-overdue,
+.reminder-card.followup-overdue {
+    border-left-color: #dc2626;
+}
+
+
+/* TODAY */
+
+.reminder-card.deadline-today,
+.reminder-card.followup-today {
+    border-left-color: #f97316;
+}
+
+
+/* SOON */
+
+.reminder-card.deadline-soon,
+.reminder-card.followup-soon {
+    border-left-color: #f59e0b;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 500px) {
+
+    .reminder-card {
+        padding: 13px;
+    }
+
+}
 }

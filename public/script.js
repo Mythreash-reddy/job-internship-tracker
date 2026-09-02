@@ -489,6 +489,8 @@ async function loadApplications() {
 
         displayFollowUps();
 
+         displayReminders();
+
         displayDeadlines();
 
         updateActionCenter();
@@ -2016,4 +2018,250 @@ if (showLoginButton) {
 // INITIAL START
 // ==========================================
 
+// ==========================================
+// REMINDERS
+// ==========================================
+
+function displayReminders() {
+
+    const remindersList =
+        document.getElementById("remindersList");
+
+    if (!remindersList) {
+        return;
+    }
+
+    const reminders = [];
+
+    applications.forEach(application => {
+
+        // ------------------------------
+        // DEADLINE REMINDER
+        // ------------------------------
+
+        if (application.deadline) {
+
+            const days =
+                daysUntil(application.deadline);
+
+            if (days < 0) {
+
+                reminders.push({
+                    type: "deadline-overdue",
+                    priority: 1,
+                    title: application.company,
+                    role: application.role,
+                    message:
+                        `Application deadline was ${Math.abs(days)} day(s) ago.`,
+                    date:
+                        application.deadline
+                });
+
+            } else if (days === 0) {
+
+                reminders.push({
+                    type: "deadline-today",
+                    priority: 2,
+                    title: application.company,
+                    role: application.role,
+                    message:
+                        "Application deadline is today.",
+                    date:
+                        application.deadline
+                });
+
+            } else if (days <= 3) {
+
+                reminders.push({
+                    type: "deadline-soon",
+                    priority: 3,
+                    title: application.company,
+                    role: application.role,
+                    message:
+                        `Application deadline is in ${days} day(s).`,
+                    date:
+                        application.deadline
+                });
+
+            }
+
+        }
+
+
+        // ------------------------------
+        // FOLLOW-UP REMINDER
+        // ------------------------------
+
+        if (application.follow_up_date) {
+
+            const days =
+                daysUntil(
+                    application.follow_up_date
+                );
+
+            if (days < 0) {
+
+                reminders.push({
+                    type: "followup-overdue",
+                    priority: 1,
+                    title: application.company,
+                    role: application.role,
+                    message:
+                        `Follow-up was ${Math.abs(days)} day(s) ago.`,
+                    date:
+                        application.follow_up_date
+                });
+
+            } else if (days === 0) {
+
+                reminders.push({
+                    type: "followup-today",
+                    priority: 2,
+                    title: application.company,
+                    role: application.role,
+                    message:
+                        "Follow up with this company today.",
+                    date:
+                        application.follow_up_date
+                });
+
+            } else if (days <= 3) {
+
+                reminders.push({
+                    type: "followup-soon",
+                    priority: 3,
+                    title: application.company,
+                    role: application.role,
+                    message:
+                        `Follow up in ${days} day(s).`,
+                    date:
+                        application.follow_up_date
+                });
+
+            }
+
+        }
+
+    });
+
+
+    // ------------------------------
+    // SORT REMINDERS
+    // ------------------------------
+
+    reminders.sort(
+        (a, b) => {
+
+            if (a.priority !== b.priority) {
+                return a.priority - b.priority;
+            }
+
+            return a.date.localeCompare(b.date);
+
+        }
+    );
+
+
+    // ------------------------------
+    // NO REMINDERS
+    // ------------------------------
+
+    if (reminders.length === 0) {
+
+        remindersList.innerHTML = `
+            <p class="empty-message">
+                ✅ No reminders right now.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    // ------------------------------
+    // DISPLAY REMINDERS
+    // ------------------------------
+
+    remindersList.innerHTML = "";
+
+
+    reminders.forEach(reminder => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            `reminder-card ${reminder.type}`;
+
+
+        card.innerHTML = `
+
+            <div class="reminder-icon">
+                ${getReminderEmoji(reminder.type)}
+            </div>
+
+            <div class="reminder-content">
+
+                <strong>
+                    ${escapeHTML(
+                        reminder.title
+                    )}
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        reminder.role
+                    )}
+                </span>
+
+                <p>
+                    ${escapeHTML(
+                        reminder.message
+                    )}
+                </p>
+
+                <small>
+                    ${formatDate(
+                        reminder.date
+                    )}
+                </small>
+
+            </div>
+
+        `;
+
+
+        remindersList.appendChild(card);
+
+    });
+
+}
+
+
+// ==========================================
+// REMINDER EMOJI
+// ==========================================
+
+function getReminderEmoji(type) {
+
+    if (
+        type === "deadline-overdue" ||
+        type === "followup-overdue"
+    ) {
+        return "🔴";
+    }
+
+
+    if (
+        type === "deadline-today" ||
+        type === "followup-today"
+    ) {
+        return "🟠";
+    }
+
+
+    return "🟡";
+
+}
 checkSession();
