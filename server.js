@@ -1,346 +1,498 @@
 // ==========================================
 // JOB APPLICATION TRACKER - SERVER
 // ==========================================
-// This file sets up a simple web server that lets users:
+// Features:
 // 1. Register / Login / Logout
-// 2. Add, view, edit, and delete job applications
-// Each user only sees their own applications.
+// 2. Add, view, edit, and delete applications
+// 3. Each user only sees their own applications
+// 4. PostgreSQL database
+// 5. PostgreSQL-backed sessions
+// 6. Deployment-ready for Render
+// 7. Basic security hardening (helmet, rate limiting)
+// 8. Centralized validation + error handling
+
 require("dotenv").config();
 
 const express = require("express");
-const cors = require("cors");
 const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
 const bcrypt = require("bcryptjs");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+
+// database.js exports the pool itself as module.exports, with
+// initializeDatabase/closeDatabase attached as properties on it —
+// so `db` IS the pool, not a { pool } wrapper object.
 const db = require("./database");
+const { initializeDatabase, closeDatabase } = db;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 // ==========================================
-// MIDDLEWARE (runs before every request)
+// STARTUP CHECKS
+// ==========================================
+// Fail fast and loudly if required config is missing,
+// instead of limping along with insecure defaults.
+
+const REQUIRED_ENV_VARS = ["SESSION_SECRET", "DATABASE_URL"];
+const missingEnvVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
+
+if (missingEnvVars.length > 0) {
+    console.error(
+        `Missing required environment variables: ${missingEnvVars.join(", ")}`
+    );
+    process.exit(1);
+}
+
+// ==========================================
+// MIDDLEWARE
 // ==========================================
 
-// Allow the frontend (running on the same address) to talk to this server
-app.use(cors({
-    origin: "http://localhost:3000",
-    credentials: true
-}));
+// Render sits behind a proxy — trust it in production so
+// secure cookies and rate limiting see the real client IP.
+if (IS_PRODUCTION) {
+    app.set("trust proxy", 1);
+}
 
-// Let us read JSON data sent in requests (like req.body)
-app.use(express.json());
+// Sets a batch of sensible security-related HTTP headers
+app.use(helmet());
 
-// Serve any files inside the "public" folder (HTML, CSS, images, etc.)
+// Read JSON request bodies (cap size to avoid abuse)
+app.use(express.json({ limit: "50kb" }));
+
+// Serve frontend files from the public folder
 app.use(express.static("public"));
 
-// Keep track of who is logged in using a session cookie
+// ==========================================
+// SESSION
+// ==========================================
+
 app.use(session({
+    store: new pgSession({
+        pool: db,
+        tableName: "session",
+        createTableIfMissing: true
+    }),
+
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+
     cookie: {
         httpOnly: true,
-        secure: false,
-        maxAge: 1000 * 60 * 60 * 24 // cookie lasts 1 day
+        secure: IS_PRODUCTION, // HTTPS only in production
+        sameSite: "lax",
+        maxAge: 1000 * 60 * 60 * 24 // 1 day
     }
 }));
 
 // ==========================================
-// HELPER: check if the user is logged in
+// RATE LIMITING
 // ==========================================
-// We use this before any route that should only work for logged-in users.
+// Slows down brute-force login/register attempts without
+// affecting normal usage.
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20,                   // 20 attempts per IP per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many attempts. Please try again later." }
+});
+
+// ==========================================
+// HELPERS
+// ==========================================
 
 function requireLogin(req, res, next) {
     if (!req.session.userId) {
         return res.status(401).json({ message: "Please login first." });
     }
-    next(); // user is logged in, continue to the actual route
+    next();
+}
+
+// Wraps async route handlers so thrown errors reach the
+// central error handler instead of crashing the process.
+function asyncHandler(fn) {
+    return (req, res, next) => fn(req, res, next).catch(next);
+}
+
+// Shared validation for the application create/edit forms.
+function validateApplicationInput(body) {
+    const { company, role, status } = body;
+
+    if (!company || !company.trim() || !role || !role.trim() || !status) {
+        return "Company, role and status are required.";
+    }
+
+    if (company.length > 200 || role.length > 200) {
+        return "Company and role must be under 200 characters.";
+    }
+
+    return null;
+}
+
+function cleanApplicationInput(body) {
+    const {
+        company,
+        role,
+        status,
+        deadline,
+        notes,
+        priority,
+        job_url,
+        follow_up_date
+    } = body;
+
+    return {
+        company: company.trim(),
+        role: role.trim(),
+        status,
+        deadline: deadline || null,
+        notes: notes || null,
+        priority: priority || "Medium",
+        job_url: job_url || null,
+        follow_up_date: follow_up_date || null
+    };
 }
 
 // ==========================================
-// REGISTER - create a new account
+// REGISTER
 // ==========================================
 
-app.post("/api/register", async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
+app.post("/api/register", authLimiter, asyncHandler(async (req, res) => {
+    const { name, email, password } = req.body;
 
-        // Basic checks on the input
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: "Name, email and password are required." });
-        }
-
-        if (password.length < 6) {
-            return res.status(400).json({ message: "Password must be at least 6 characters." });
-        }
-
-        const cleanName = name.trim();
-        const cleanEmail = email.trim().toLowerCase();
-
-        // Don't allow two accounts with the same email
-        const existingUser = db.prepare("SELECT id FROM users WHERE email = ?").get(cleanEmail);
-
-        if (existingUser) {
-            return res.status(409).json({ message: "An account with this email already exists." });
-        }
-
-        // Never store plain text passwords - hash it first
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Save the new user in the database
-        const result = db.prepare(
-            "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
-        ).run(cleanName, cleanEmail, hashedPassword);
-
-        // Log the user in right away by saving their id in the session
-        req.session.userId = result.lastInsertRowid;
-        req.session.userName = cleanName;
-
-        res.status(201).json({
-            message: "Account created successfully.",
-            user: {
-                id: result.lastInsertRowid,
-                name: cleanName,
-                email: cleanEmail
-            }
+    if (!name || !name.trim() || !email || !password) {
+        return res.status(400).json({
+            message: "Name, email and password are required."
         });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to create account." });
     }
-});
 
-// ==========================================
-// LOGIN - check email/password and start a session
-// ==========================================
-
-app.post("/api/login", async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required." });
-        }
-
-        const cleanEmail = email.trim().toLowerCase();
-
-        const user = db.prepare("SELECT * FROM users WHERE email = ?").get(cleanEmail);
-
-        // Same error message for "no user" and "wrong password"
-        // so people can't guess which emails are registered
-        if (!user) {
-            return res.status(401).json({ message: "Invalid email or password." });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, user.password);
-
-        if (!passwordMatch) {
-            return res.status(401).json({ message: "Invalid email or password." });
-        }
-
-        req.session.userId = user.id;
-        req.session.userName = user.name;
-
-        res.json({
-            message: "Login successful.",
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email
-            }
+    if (password.length < 6) {
+        return res.status(400).json({
+            message: "Password must be at least 6 characters."
         });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to login." });
     }
-});
+
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    const existingUser = await db.query(
+        "SELECT id FROM users WHERE email = $1",
+        [cleanEmail]
+    );
+
+    if (existingUser.rows.length > 0) {
+        return res.status(409).json({
+            message: "An account with this email already exists."
+        });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await db.query(
+        `
+        INSERT INTO users (name, email, password)
+        VALUES ($1, $2, $3)
+        RETURNING id, name, email
+        `,
+        [cleanName, cleanEmail, hashedPassword]
+    );
+
+    const user = result.rows[0];
+
+    req.session.userId = user.id;
+    req.session.userName = user.name;
+
+    res.status(201).json({
+        message: "Account created successfully.",
+        user
+    });
+}));
 
 // ==========================================
-// LOGOUT - end the session
+// LOGIN
+// ==========================================
+
+app.post("/api/login", authLimiter, asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({
+            message: "Email and password are required."
+        });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    const result = await db.query(
+        "SELECT * FROM users WHERE email = $1",
+        [cleanEmail]
+    );
+
+    // Same message whether the email doesn't exist or the
+    // password is wrong, so attackers can't enumerate accounts.
+    const genericError = { message: "Invalid email or password." };
+
+    if (result.rows.length === 0) {
+        return res.status(401).json(genericError);
+    }
+
+    const user = result.rows[0];
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+        return res.status(401).json(genericError);
+    }
+
+    req.session.userId = user.id;
+    req.session.userName = user.name;
+
+    res.json({
+        message: "Login successful.",
+        user: {
+            id: user.id,
+            name: user.name,
+            email: user.email
+        }
+    });
+}));
+
+// ==========================================
+// LOGOUT
 // ==========================================
 
 app.post("/api/logout", (req, res) => {
     req.session.destroy((error) => {
         if (error) {
-            console.error(error);
+            console.error("Logout error:", error);
             return res.status(500).json({ message: "Failed to logout." });
         }
+
+        res.clearCookie("connect.sid");
         res.json({ message: "Logged out successfully." });
     });
 });
 
 // ==========================================
-// CURRENT USER - who is logged in right now?
+// CURRENT USER
 // ==========================================
 
-app.get("/api/me", (req, res) => {
+app.get("/api/me", asyncHandler(async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({ message: "Not logged in." });
     }
 
-    const user = db.prepare("SELECT id, name, email FROM users WHERE id = ?").get(req.session.userId);
+    const result = await db.query(
+        "SELECT id, name, email FROM users WHERE id = $1",
+        [req.session.userId]
+    );
 
-    if (!user) {
+    if (result.rows.length === 0) {
         return res.status(401).json({ message: "User not found." });
     }
 
-    res.json(user);
-});
+    res.json(result.rows[0]);
+}));
 
 // ==========================================
-// GET ALL APPLICATIONS (for the logged-in user)
+// GET ALL APPLICATIONS
 // ==========================================
 
-app.get("/api/applications", requireLogin, (req, res) => {
-    try {
-        const applications = db.prepare(
-            "SELECT * FROM applications WHERE user_id = ? ORDER BY id DESC"
-        ).all(req.session.userId);
+app.get("/api/applications", requireLogin, asyncHandler(async (req, res) => {
+    const result = await db.query(
+        "SELECT * FROM applications WHERE user_id = $1 ORDER BY id DESC",
+        [req.session.userId]
+    );
 
-        res.json(applications);
+    res.json(result.rows);
+}));
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to get applications." });
+// ==========================================
+// ADD APPLICATION
+// ==========================================
+
+app.post("/api/applications", requireLogin, asyncHandler(async (req, res) => {
+    const validationError = validateApplicationInput(req.body);
+
+    if (validationError) {
+        return res.status(400).json({ message: validationError });
     }
-});
 
-// ==========================================
-// ADD A NEW APPLICATION
-// ==========================================
+    const appData = cleanApplicationInput(req.body);
 
-app.post("/api/applications", requireLogin, (req, res) => {
-    try {
-        const {
-            company,
-            role,
-            status,
-            deadline,
-            notes,
-            priority,
-            job_url,
-            follow_up_date
-        } = req.body;
-
-        if (!company || !role || !status) {
-            return res.status(400).json({ message: "Company, role and status are required." });
-        }
-
-        const result = db.prepare(`
-            INSERT INTO applications
-            (company, role, status, deadline, notes, priority, job_url, follow_up_date, user_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-            company.trim(),
-            role.trim(),
-            status,
-            deadline || null,
-            notes || null,
-            priority || "Medium",
-            job_url || null,
-            follow_up_date || null,
+    const result = await db.query(
+        `
+        INSERT INTO applications
+        (company, role, status, deadline, notes, priority, job_url, follow_up_date, user_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING *
+        `,
+        [
+            appData.company,
+            appData.role,
+            appData.status,
+            appData.deadline,
+            appData.notes,
+            appData.priority,
+            appData.job_url,
+            appData.follow_up_date,
             req.session.userId
-        );
+        ]
+    );
 
-        // Fetch the row we just created so we can send it back
-        const newApplication = db.prepare(
-            "SELECT * FROM applications WHERE id = ? AND user_id = ?"
-        ).get(result.lastInsertRowid, req.session.userId);
+    res.status(201).json(result.rows[0]);
+}));
 
-        res.status(201).json(newApplication);
+// ==========================================
+// EDIT APPLICATION
+// ==========================================
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to add application." });
+app.put("/api/applications/:id", requireLogin, asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const validationError = validateApplicationInput(req.body);
+
+    if (validationError) {
+        return res.status(400).json({ message: validationError });
     }
-});
 
-// ==========================================
-// EDIT AN EXISTING APPLICATION
-// ==========================================
+    const appData = cleanApplicationInput(req.body);
 
-app.put("/api/applications/:id", requireLogin, (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const {
-            company,
-            role,
-            status,
-            deadline,
-            notes,
-            priority,
-            job_url,
-            follow_up_date
-        } = req.body;
-
-        if (!company || !role || !status) {
-            return res.status(400).json({ message: "Company, role and status are required." });
-        }
-
-        const result = db.prepare(`
-            UPDATE applications
-            SET company = ?, role = ?, status = ?, deadline = ?,
-                notes = ?, priority = ?, job_url = ?, follow_up_date = ?
-            WHERE id = ? AND user_id = ?
-        `).run(
-            company.trim(),
-            role.trim(),
-            status,
-            deadline || null,
-            notes || null,
-            priority || "Medium",
-            job_url || null,
-            follow_up_date || null,
+    const result = await db.query(
+        `
+        UPDATE applications
+        SET
+            company = $1,
+            role = $2,
+            status = $3,
+            deadline = $4,
+            notes = $5,
+            priority = $6,
+            job_url = $7,
+            follow_up_date = $8
+        WHERE id = $9
+          AND user_id = $10
+        RETURNING *
+        `,
+        [
+            appData.company,
+            appData.role,
+            appData.status,
+            appData.deadline,
+            appData.notes,
+            appData.priority,
+            appData.job_url,
+            appData.follow_up_date,
             id,
             req.session.userId
-        );
+        ]
+    );
 
-        // If nothing changed, either the id was wrong or it belongs to another user
-        if (result.changes === 0) {
-            return res.status(404).json({ message: "Application not found." });
-        }
-
-        const updatedApplication = db.prepare(
-            "SELECT * FROM applications WHERE id = ? AND user_id = ?"
-        ).get(id, req.session.userId);
-
-        res.json(updatedApplication);
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to update application." });
+    if (result.rows.length === 0) {
+        return res.status(404).json({ message: "Application not found." });
     }
+
+    res.json(result.rows[0]);
+}));
+
+// ==========================================
+// DELETE APPLICATION
+// ==========================================
+
+app.delete("/api/applications/:id", requireLogin, asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await db.query(
+        "DELETE FROM applications WHERE id = $1 AND user_id = $2 RETURNING id",
+        [id, req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({ message: "Application not found." });
+    }
+
+    res.json({ message: "Application deleted successfully." });
+}));
+
+// ==========================================
+// 404 HANDLER (for unmatched API routes)
+// ==========================================
+
+app.use("/api", (req, res) => {
+    res.status(404).json({ message: "Route not found." });
 });
 
 // ==========================================
-// DELETE AN APPLICATION
+// CENTRAL ERROR HANDLER
+// ==========================================
+// Any error passed via next(error), or thrown inside an
+// asyncHandler-wrapped route, ends up here.
+
+app.use((error, req, res, next) => {
+    console.error("Unhandled error:", error);
+
+    // Postgres unique constraint violation (e.g. duplicate email)
+    if (error.code === "23505") {
+        return res.status(409).json({
+            message: "That record already exists."
+        });
+    }
+
+    res.status(500).json({ message: "Something went wrong." });
+});
+
+// ==========================================
+// START SERVER
 // ==========================================
 
-app.delete("/api/applications/:id", requireLogin, (req, res) => {
+let server;
+
+async function startServer() {
     try {
-        const { id } = req.params;
+        // Creates tables/indexes if they don't exist yet, and
+        // doubles as the initial connection check.
+        await initializeDatabase();
 
-        const result = db.prepare(
-            "DELETE FROM applications WHERE id = ? AND user_id = ?"
-        ).run(id, req.session.userId);
-
-        if (result.changes === 0) {
-            return res.status(404).json({ message: "Application not found." });
-        }
-
-        res.json({ message: "Application deleted successfully." });
+        server = app.listen(PORT, "0.0.0.0", () => {
+            console.log(`Server running at http://localhost:${PORT}`);
+        });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to delete application." });
+        console.error("Could not start server:", error);
+        process.exit(1);
     }
-});
+}
 
-// ==========================================
-// START THE SERVER
-// ==========================================
-app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
+// Give in-flight requests a chance to finish before shutting down,
+// which matters on platforms like Render that send SIGTERM on deploy.
+async function shutdown(signal) {
+    console.log(`${signal} received, shutting down gracefully.`);
+
+    if (!server) {
+        return process.exit(0);
+    }
+
+    server.close(async () => {
+        console.log("HTTP server closed.");
+
+        try {
+            await closeDatabase();
+        } catch (error) {
+            console.error("Error closing database pool:", error);
+        }
+
+        process.exit(0);
+    });
+
+    // Force exit if it hasn't closed within 10 seconds
+    setTimeout(() => process.exit(1), 10000).unref();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+
+startServer();

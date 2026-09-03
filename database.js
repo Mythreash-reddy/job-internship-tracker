@@ -1,125 +1,102 @@
-const Database = require("better-sqlite3");
+require("dotenv").config();
 
-const db = new Database("jobs.db");
-
-// ==========================================
-// USERS TABLE
-// ==========================================
-
-db.prepare(`
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL
-    )
-`).run();
-
+const { Pool } = require("pg");
 
 // ==========================================
-// APPLICATIONS TABLE
+// STARTUP CHECK
 // ==========================================
 
-db.prepare(`
-    CREATE TABLE IF NOT EXISTS applications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        company TEXT NOT NULL,
-        role TEXT NOT NULL,
-        status TEXT NOT NULL,
-        deadline TEXT,
-        notes TEXT,
-        priority TEXT DEFAULT 'Medium',
-        job_url TEXT,
-        follow_up_date TEXT,
-        user_id INTEGER,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    )
-`).run();
-
-
-// ==========================================
-// CHECK EXISTING COLUMNS
-// ==========================================
-
-const columns = db
-    .prepare("PRAGMA table_info(applications)")
-    .all();
-
-
-// ==========================================
-// ADD priority IF MISSING
-// ==========================================
-
-const hasPriority = columns.some(
-    column => column.name === "priority"
-);
-
-if (!hasPriority) {
-
-    db.prepare(`
-        ALTER TABLE applications
-        ADD COLUMN priority TEXT DEFAULT 'Medium'
-    `).run();
-
+if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is missing.");
 }
 
+// ==========================================
+// POSTGRESQL CONNECTION POOL
+// ==========================================
+
+const db = new Pool({
+    connectionString: process.env.DATABASE_URL,
+
+    // Render's managed Postgres uses a self-signed cert chain,
+    // so we disable strict verification rather than skip SSL entirely.
+    ssl: {
+        rejectUnauthorized: false
+    },
+
+    max: 10,                      // max simultaneous connections
+    idleTimeoutMillis: 30000,     // close idle clients after 30s
+    connectionTimeoutMillis: 5000 // fail fast if a connection can't be made
+});
+
+// Catches errors on idle clients in the pool (e.g. the DB restarting)
+// so a background issue doesn't crash the whole process.
+db.on("error", (error) => {
+    console.error("Unexpected PostgreSQL error:", error);
+});
 
 // ==========================================
-// ADD job_url IF MISSING
+// INITIALIZE DATABASE
 // ==========================================
 
-const hasJobUrl = columns.some(
-    column => column.name === "job_url"
-);
+async function initializeDatabase() {
 
-if (!hasJobUrl) {
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+    `);
 
-    db.prepare(`
-        ALTER TABLE applications
-        ADD COLUMN job_url TEXT
-    `).run();
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS applications (
+            id SERIAL PRIMARY KEY,
+            company TEXT NOT NULL,
+            role TEXT NOT NULL,
+            status TEXT NOT NULL,
+            deadline DATE,
+            notes TEXT,
+            priority TEXT NOT NULL DEFAULT 'Medium',
+            job_url TEXT,
+            follow_up_date DATE,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
+            CONSTRAINT priority_check CHECK (priority IN ('Low', 'Medium', 'High'))
+        )
+    `);
+
+    // Speeds up "get all applications for this user" — the app's
+    // most frequent query — instead of a full table scan.
+    await db.query(`
+        CREATE INDEX IF NOT EXISTS idx_applications_user_id
+        ON applications(user_id)
+    `);
+
+    console.log("PostgreSQL tables ready.");
 }
 
-
 // ==========================================
-// ADD follow_up_date IF MISSING
+// CLOSE DATABASE
 // ==========================================
 
-const hasFollowUpDate = columns.some(
-    column => column.name === "follow_up_date"
-);
-
-if (!hasFollowUpDate) {
-
-    db.prepare(`
-        ALTER TABLE applications
-        ADD COLUMN follow_up_date TEXT
-    `).run();
-
+async function closeDatabase() {
+    await db.end();
+    console.log("PostgreSQL connection pool closed.");
 }
 
-
 // ==========================================
-// ADD user_id IF MISSING
+// EXPORTS
 // ==========================================
 
-const hasUserId = columns.some(
-    column => column.name === "user_id"
-);
-
-if (!hasUserId) {
-
-    db.prepare(`
-        ALTER TABLE applications
-        ADD COLUMN user_id INTEGER
-    `).run();
-
-}
-
-
-// ==========================================
-// EXPORT DATABASE
-// ==========================================
+// Export the pool itself as `db`.
+// This matches server.js:
+// const db = require("./database");
 
 module.exports = db;
+
+// Attach helper functions to the pool object.
+module.exports.initializeDatabase = initializeDatabase;
+module.exports.closeDatabase = closeDatabase;
